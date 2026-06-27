@@ -29,7 +29,7 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "apiUrl": ""
+      "apiUrl": "https://kanni-api.onrender.com/api"
     },
     "plugins": [
       "expo-secure-store",
