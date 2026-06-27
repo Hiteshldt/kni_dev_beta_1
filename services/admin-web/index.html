@@ -5,129 +5,141 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>KANNI · Admin</title>
 <style>
-  :root {
-    --green:#16a34a; --green-d:#15803d; --green-l:#dcfce7;
-    --ink:#0f172a; --slate:#475569; --muted:#94a3b8; --line:#e2e8f0;
-    --bg:#f1f5f9; --card:#ffffff; --amber:#b45309; --amber-l:#fef3c7;
-    --red:#dc2626; --red-l:#fee2e2; --blue:#2563eb;
-    --shadow:0 1px 3px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
-    --shadow-lg:0 10px 30px rgba(15,23,42,.12);
-    --sidebar:248px;
+  :root{
+    --accent:#16a34a; --accent-d:#15803d; --accent-l:#ecfdf3; --accent-r:#dcfce7;
+    --ink:#0b1524; --body:#334155; --muted:#8a97a8; --faint:#aab4c2;
+    --line:#e9edf2; --line-2:#f1f4f8; --bg:#f7f8fa; --card:#fff;
+    --amber:#b45309; --amber-l:#fffbeb; --amber-r:#fef3c7;
+    --red:#e11d48; --red-l:#fff1f2; --red-r:#ffe4e6; --blue:#2563eb;
+    --sh:0 1px 2px rgba(16,24,40,.05); --sh-md:0 4px 16px rgba(16,24,40,.08);
+    --sh-lg:0 16px 48px rgba(16,24,40,.16); --r:12px; --side:256px;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
-  body{margin:0;font:14.5px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-       background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
-  button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:9px 16px;font-weight:600;
-         background:var(--green);color:#fff;transition:filter .15s, background .15s}
-  button:hover{filter:brightness(1.05)}
-  button:disabled{opacity:.55;cursor:default;filter:none}
-  button.ghost{background:#fff;color:var(--slate);border:1px solid var(--line)}
-  button.ghost:hover{background:#f8fafc}
-  button.danger{background:var(--red)}
-  button.sm{padding:6px 12px;font-size:13px;border-radius:8px}
-  input,select{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
-               background:#fff;color:var(--ink);width:100%}
-  input:focus,select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--green-l)}
-  label{font-size:12.5px;font-weight:600;color:var(--slate);display:block;margin-bottom:5px}
-  a{color:var(--green-d);text-decoration:none}
-  h1,h2,h3{margin:0}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Inter,sans-serif;
+    -webkit-font-smoothing:antialiased;letter-spacing:-.05px}
+  svg{display:block}
+  button{font:inherit;cursor:pointer;border:0;border-radius:9px;padding:8px 14px;font-weight:600;
+    background:var(--accent);color:#fff;transition:filter .15s,background .15s,box-shadow .15s;white-space:nowrap}
+  button:hover{filter:brightness(1.04)} button:active{filter:brightness(.97)}
+  button:disabled{opacity:.5;cursor:default;filter:none}
+  button.ghost{background:#fff;color:var(--body);border:1px solid var(--line);box-shadow:var(--sh)}
+  button.ghost:hover{background:#fafbfc;filter:none}
+  button.danger{background:var(--red)} button.sm{padding:6px 11px;font-size:12.5px;border-radius:8px}
+  button.icon{padding:8px;background:#fff;color:var(--body);border:1px solid var(--line);box-shadow:var(--sh)}
+  input,select{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);width:100%}
+  input::placeholder{color:var(--faint)}
+  input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3.5px var(--accent-r)}
+  label{font-size:12px;font-weight:600;color:var(--body);display:block;margin-bottom:6px}
+  h1,h2,h3{margin:0} code{background:var(--line-2);padding:2px 7px;border-radius:6px;font-size:12.5px}
 
-  /* ---------- Login ---------- */
+  /* ---- Login ---- */
   .login-wrap{min-height:100vh;display:grid;place-items:center;padding:24px;
-    background:radial-gradient(1200px 600px at 50% -10%, #e7f6ec 0%, var(--bg) 60%)}
-  .login-card{width:100%;max-width:400px;background:var(--card);border:1px solid var(--line);
-    border-radius:20px;padding:32px;box-shadow:var(--shadow-lg)}
-  .brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:20px;letter-spacing:-.3px}
-  .brand .dot{font-size:24px}
-  .login-card h1{font-size:21px;margin:18px 0 4px}
-  .login-card .sub{color:var(--muted);margin-bottom:22px;font-size:13.5px}
+    background:radial-gradient(900px 460px at 50% -8%, #e9f8ef 0%, var(--bg) 55%)}
+  .login-card{width:100%;max-width:392px;background:var(--card);border:1px solid var(--line);
+    border-radius:18px;padding:34px 32px;box-shadow:var(--sh-lg)}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px}
+  .brand .mark{width:34px;height:34px;border-radius:9px;background:var(--accent);color:#fff;
+    display:grid;place-items:center;box-shadow:0 4px 12px rgba(22,163,74,.35)}
+  .login-card h1{font-size:21px;margin:20px 0 5px;letter-spacing:-.4px}
+  .login-card .sub{color:var(--muted);margin-bottom:24px;font-size:13.5px}
   .field{margin-bottom:14px}
-  .login-card button[type=submit]{width:100%;padding:12px;font-size:15px;margin-top:4px}
-  .err{color:var(--red);font-size:13px;margin-top:10px;min-height:18px}
-  details.adv{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
-  details.adv summary{cursor:pointer;color:var(--muted);font-size:12.5px;list-style:none}
+  .login-card button[type=submit]{width:100%;padding:12px;font-size:14.5px;margin-top:6px}
+  .err{color:var(--red);font-size:13px;margin-top:11px;min-height:17px}
+  details.adv{margin-top:20px;border-top:1px solid var(--line);padding-top:15px}
+  details.adv summary{cursor:pointer;color:var(--muted);font-size:12px;list-style:none}
   details.adv summary::-webkit-details-marker{display:none}
-  .adv .row{display:flex;gap:8px;margin-top:8px}
+  .adv .row{display:flex;gap:8px;margin-top:9px}
 
-  /* ---------- App shell ---------- */
+  /* ---- Shell ---- */
   .app{display:none;min-height:100vh}
-  .app.show{display:grid;grid-template-columns:var(--sidebar) 1fr}
-  .sidebar{background:#0b1220;color:#cbd5e1;padding:20px 16px;display:flex;flex-direction:column;gap:6px;
-    position:sticky;top:0;height:100vh}
-  .sidebar .logo{display:flex;align-items:center;gap:9px;color:#fff;font-weight:800;font-size:18px;
-    padding:6px 10px 18px;letter-spacing:-.3px}
-  .nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;color:#94a3b8;
-    font-weight:600;cursor:pointer;font-size:14px;transition:background .15s,color .15s}
-  .nav-item .ic{width:20px;text-align:center;font-size:15px}
-  .nav-item:hover{background:#16203a;color:#e2e8f0}
-  .nav-item.active{background:var(--green);color:#fff}
-  .nav-badge{margin-left:auto;background:var(--amber);color:#fff;font-size:11px;font-weight:800;
-    min-width:20px;height:20px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}
-  .nav-item.active .nav-badge{background:rgba(255,255,255,.25)}
-  .side-foot{margin-top:auto;color:#64748b;font-size:12px;padding:10px}
+  .app.show{display:grid;grid-template-columns:var(--side) 1fr}
+  .sidebar{background:#fff;border-right:1px solid var(--line);padding:18px 14px;display:flex;flex-direction:column;
+    position:sticky;top:0;height:100vh;gap:3px}
+  .sidebar .brand{padding:6px 10px 20px}
+  .nav-sec{font-size:10.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--faint);
+    padding:14px 12px 6px}
+  .nav-item{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:9px;color:var(--body);
+    font-weight:550;cursor:pointer;transition:background .14s,color .14s}
+  .nav-item svg{color:var(--muted);transition:color .14s;flex:0 0 auto}
+  .nav-item:hover{background:var(--line-2)} .nav-item:hover svg{color:var(--body)}
+  .nav-item.active{background:var(--accent-l);color:var(--accent-d)}
+  .nav-item.active svg{color:var(--accent)}
+  .nav-badge{margin-left:auto;background:var(--amber-r);color:var(--amber);font-size:11px;font-weight:800;
+    min-width:20px;height:19px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}
+  .side-foot{margin-top:auto;display:flex;align-items:center;gap:9px;padding:10px;border-top:1px solid var(--line-2);color:var(--muted);font-size:12px}
 
   main{min-width:0;display:flex;flex-direction:column}
-  .topbar{position:sticky;top:0;z-index:5;background:rgba(241,245,249,.85);backdrop-filter:blur(8px);
-    border-bottom:1px solid var(--line);padding:14px 28px;display:flex;align-items:center;gap:14px}
-  .topbar h2{font-size:18px}
-  .topbar .right{margin-left:auto;display:flex;align-items:center;gap:12px}
-  .whoami{display:flex;align-items:center;gap:8px;color:var(--slate);font-size:13.5px;font-weight:600}
-  .avatar{width:30px;height:30px;border-radius:50%;background:var(--green);color:#fff;display:grid;
-    place-items:center;font-weight:800;font-size:13px}
-  .content{padding:24px 28px 60px;max-width:1100px;width:100%}
+  .topbar{position:sticky;top:0;z-index:6;background:rgba(247,248,250,.8);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);padding:0 30px;height:62px;display:flex;align-items:center;gap:14px}
+  .topbar h2{font-size:18px;letter-spacing:-.3px}
+  .topbar .sub{color:var(--muted);font-size:12.5px;font-weight:500;margin-top:1px}
+  .topbar .right{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .whoami{display:flex;align-items:center;gap:9px;padding-left:6px}
+  .avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-d));
+    color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px}
+  .whoami .nm{font-size:13px;font-weight:600} .whoami .rl{font-size:11px;color:var(--muted)}
+  .content{padding:26px 30px 70px;max-width:1180px;width:100%}
 
-  /* ---------- Pieces ---------- */
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;
-    box-shadow:var(--shadow);margin-bottom:16px}
-  .card-h{font-weight:700;font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  /* ---- Cards / KPI ---- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh)}
+  .card.pad{padding:20px} .card+.card{margin-top:16px}
+  .sec-title{font-size:12px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);margin:26px 2px 12px}
+  .sec-title:first-child{margin-top:4px}
   .grid{display:grid;gap:14px}
-  .grid.k4{grid-template-columns:repeat(4,1fr)}
-  .grid.k3{grid-template-columns:repeat(3,1fr)}
-  @media(max-width:880px){.grid.k4,.grid.k3{grid-template-columns:repeat(2,1fr)}
-    .app.show{grid-template-columns:1fr}.sidebar{display:none}}
-  .stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
-  .stat .ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:18px;margin-bottom:12px;
-    background:var(--green-l)}
-  .stat.warn .ic{background:var(--amber-l)}
-  .stat .n{font-size:25px;font-weight:800;letter-spacing:-.5px}
-  .stat .l{color:var(--muted);font-size:12.5px;font-weight:600;margin-top:2px}
-  .stat.warn .n{color:var(--amber)}
+  .k4{grid-template-columns:repeat(4,1fr)} .k3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:900px){.k4,.k3{grid-template-columns:repeat(2,1fr)} .app.show{grid-template-columns:1fr} .sidebar{display:none}}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:17px 18px;box-shadow:var(--sh)}
+  .kpi .ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--accent-l);color:var(--accent);margin-bottom:13px}
+  .kpi.amber .ic{background:var(--amber-l);color:var(--amber)} .kpi.blue .ic{background:#eff6ff;color:var(--blue)}
+  .kpi .n{font-size:24px;font-weight:800;letter-spacing:-.6px;line-height:1}
+  .kpi .l{color:var(--muted);font-size:12.5px;font-weight:550;margin-top:7px}
+  .kpi.amber .n{color:var(--amber)}
 
-  .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;
-    background:#eef2f6;color:var(--slate)}
-  .badge.green{background:var(--green-l);color:var(--green-d)}
-  .badge.amber{background:var(--amber-l);color:var(--amber)}
-  .badge.red{background:var(--red-l);color:var(--red)}
+  /* ---- Toolbar + table ---- */
+  .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .searchbox{position:relative;flex:1;max-width:340px}
+  .searchbox svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--faint)}
+  .searchbox input{padding-left:36px}
+  .count{color:var(--muted);font-size:12.5px;font-weight:600}
+  .tbl-wrap{overflow:auto;max-height:calc(100vh - 240px);border-radius:var(--r)}
+  table{width:100%;border-collapse:separate;border-spacing:0}
+  thead th{position:sticky;top:0;background:#fbfcfd;z-index:1;text-align:left;padding:11px 16px;
+    font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);border-bottom:1px solid var(--line)}
+  tbody td{padding:13px 16px;border-bottom:1px solid var(--line-2);font-size:13.5px;vertical-align:middle}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:#fcfdfe}
+  .id{font-weight:700;font-feature-settings:"tnum"} .sub-c{color:var(--muted);font-size:12px}
+  .price{color:var(--accent-d);font-weight:800}
 
-  table{width:100%;border-collapse:collapse}
-  th,td{text-align:left;padding:12px 12px;border-bottom:1px solid var(--line);font-size:13.5px;vertical-align:middle}
-  th{color:var(--muted);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
-  tr:last-child td{border-bottom:0}
-  tbody tr:hover{background:#f8fafc}
-  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
-  .muted{color:var(--muted)} .slate{color:var(--slate)}
-  .thumb{width:56px;height:56px;border-radius:10px;object-fit:cover;border:1px solid var(--line);background:#f1f5f9}
-  .thumbs{display:flex;gap:6px;margin:8px 0}
-  .minifield{display:flex;flex-direction:column;gap:4px}
-  .minifield input,.minifield select{width:108px}
-  .empty{text-align:center;color:var(--muted);padding:48px 0}
-  .empty .big{font-size:40px;margin-bottom:8px}
-  .price{color:var(--green-d);font-weight:800}
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px 3px 8px;border-radius:999px;font-size:11.5px;font-weight:700;
+    background:#eef1f5;color:var(--body)}
+  .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+  .pill.green{background:var(--accent-l);color:var(--accent-d)} .pill.amber{background:var(--amber-l);color:var(--amber)}
+  .pill.red{background:var(--red-l);color:var(--red)} .pill.grey{background:#eef1f5;color:var(--muted)}
 
-  /* toggle switch */
-  .switch{position:relative;display:inline-block;width:46px;height:26px;flex:0 0 auto}
+  .thumb{width:48px;height:48px;border-radius:9px;object-fit:cover;border:1px solid var(--line);background:var(--line-2)}
+  .thumbs{display:flex;gap:6px;margin:10px 0 2px}
+  .minifield{display:flex;flex-direction:column;gap:5px} .minifield input,.minifield select{width:104px}
+  .empty{text-align:center;color:var(--muted);padding:54px 20px}
+  .empty .big{margin:0 auto 12px;width:52px;height:52px;border-radius:14px;background:var(--line-2);display:grid;place-items:center;color:var(--faint)}
+  .skel{height:14px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 37%,#eef1f5 63%);background-size:400% 100%;animation:sh 1.2s infinite}
+  @keyframes sh{0%{background-position:100% 0}100%{background-position:-100% 0}}
+  .review-card{padding:18px 20px;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);background:#fff}
+  .review-card+.review-card{margin-top:14px}
+
+  .switch{position:relative;display:inline-block;width:44px;height:25px;flex:0 0 auto}
   .switch input{opacity:0;width:0;height:0}
-  .slider{position:absolute;inset:0;background:#cbd5e1;border-radius:999px;transition:.2s;cursor:pointer}
-  .slider:before{content:"";position:absolute;height:20px;width:20px;left:3px;top:3px;background:#fff;border-radius:50%;
-    transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
-  .switch input:checked+.slider{background:var(--green)}
-  .switch input:checked+.slider:before{transform:translateX(20px)}
+  .slider{position:absolute;inset:0;background:#d3dae3;border-radius:999px;transition:.2s;cursor:pointer}
+  .slider:before{content:"";position:absolute;height:19px;width:19px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .switch input:checked+.slider{background:var(--accent)} .switch input:checked+.slider:before{transform:translateX(19px)}
 
-  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;
-    padding:11px 20px;border-radius:12px;opacity:0;transition:opacity .2s;pointer-events:none;
-    box-shadow:var(--shadow-lg);font-weight:600;font-size:13.5px;max-width:90vw}
-  .toast.show{opacity:1}.toast.err{background:var(--red)}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--ink);color:#fff;
+    padding:12px 18px;border-radius:11px;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;
+    box-shadow:var(--sh-lg);font-weight:600;font-size:13px;display:flex;align-items:center;gap:9px;max-width:90vw}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)} .toast.err{background:var(--red)}
+  .flex{display:flex} .between{justify-content:space-between} .center{align-items:center} .gap{gap:12px} .wrap{flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -135,27 +147,17 @@
 <!-- ===== LOGIN ===== -->
 <div class="login-wrap" id="loginView">
   <div class="login-card">
-    <div class="brand"><span class="dot">🌾</span> KANNI</div>
-    <h1>Admin sign in</h1>
-    <div class="sub">Operations console — manage listings, drivers, orders &amp; pricing.</div>
+    <div class="brand"><span class="mark" id="loginMark"></span> KANNI</div>
+    <h1>Sign in to Admin</h1>
+    <div class="sub">Operations console — listings, logistics, orders &amp; finance.</div>
     <form id="loginForm">
-      <div class="field">
-        <label>Email</label>
-        <input id="email" type="email" autocomplete="username" value="admin@kanni.com" />
-      </div>
-      <div class="field">
-        <label>Password</label>
-        <input id="password" type="password" autocomplete="current-password" placeholder="••••••••" />
-      </div>
+      <div class="field"><label>Email</label><input id="email" type="email" autocomplete="username" value="admin@kanni.com" /></div>
+      <div class="field"><label>Password</label><input id="password" type="password" autocomplete="current-password" placeholder="••••••••" /></div>
       <button type="submit" id="loginBtn">Sign in</button>
       <div class="err" id="loginErr"></div>
     </form>
-    <details class="adv">
-      <summary>Advanced · API endpoint</summary>
-      <div class="row">
-        <input id="apiBaseInput" placeholder="https://kanni-api.onrender.com/api" />
-        <button class="ghost sm" id="apiSave" type="button">Set</button>
-      </div>
+    <details class="adv"><summary>Advanced · API endpoint</summary>
+      <div class="row"><input id="apiBaseInput" placeholder="https://kanni-api.onrender.com/api" /><button class="ghost sm" id="apiSave" type="button">Set</button></div>
     </details>
   </div>
 </div>
@@ -163,21 +165,17 @@
 <!-- ===== APP ===== -->
 <div class="app" id="appView">
   <aside class="sidebar">
-    <div class="logo">🌾 KANNI</div>
-    <div class="nav-item active" data-tab="dashboard"><span class="ic">▦</span> Dashboard</div>
-    <div class="nav-item" data-tab="listings"><span class="ic">🍅</span> Listings <span id="badgeListings"></span></div>
-    <div class="nav-item" data-tab="drivers"><span class="ic">🚚</span> Drivers <span id="badgeDrivers"></span></div>
-    <div class="nav-item" data-tab="orders"><span class="ic">📦</span> Orders</div>
-    <div class="nav-item" data-tab="settings"><span class="ic">⚙️</span> Settings</div>
-    <div class="side-foot">KANNI Admin · v1</div>
+    <div class="brand"><span class="mark" id="sideMark"></span> KANNI</div>
+    <nav id="nav"></nav>
+    <div class="side-foot"><span id="footDot">●</span> Connected · v1</div>
   </aside>
   <main>
     <header class="topbar">
-      <h2 id="pageTitle">Dashboard</h2>
+      <div><h2 id="pageTitle">Dashboard</h2><div class="sub" id="pageSub"></div></div>
       <div class="right">
-        <button class="ghost sm" id="refreshBtn">↻ Refresh</button>
-        <span class="whoami"><span class="avatar" id="avatar">A</span><span id="whoami"></span></span>
-        <button class="ghost sm" id="logout">Log out</button>
+        <button class="icon" id="refreshBtn" title="Refresh"></button>
+        <div class="whoami"><span class="avatar" id="avatar">A</span><div><div class="nm" id="whoami"></div><div class="rl">Administrator</div></div></div>
+        <button class="ghost sm" id="logout">Sign out</button>
       </div>
     </header>
     <div class="content" id="panel"></div>
@@ -188,294 +186,256 @@
 
 <script>
 const $ = (s) => document.querySelector(s);
-const params = new URLSearchParams(location.search);
 
-const isLocal = (h) => /^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(h || '');
-function defaultApi() {
-  if (isLocal(location.hostname)) return 'http://localhost:3333/api';
-  return location.origin.replace(/admin/i, 'api').replace(/\/$/, '') + '/api';
-}
+/* ---------- icons (Feather-style line icons) ---------- */
+const P = {
+  leaf:'<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/>',
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>',
+  tag:'<path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/><circle cx="7" cy="7" r="1.2"/>',
+  truck:'<path d="M10 17h4V5H2v12h3"/><path d="M14 9h4l4 4v4h-3"/><circle cx="7.5" cy="17.5" r="2"/><circle cx="17.5" cy="17.5" r="2"/>',
+  box:'<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+  chart:'<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>',
+  search:'<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+  refresh:'<path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>',
+  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+};
+function ic(n,s=18){return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${P[n]||''}</svg>`}
+$('#loginMark').innerHTML = ic('leaf',18); $('#sideMark').innerHTML = ic('leaf',18);
+$('#refreshBtn').innerHTML = ic('refresh',17);
+
+/* ---------- API base ---------- */
+const params = new URLSearchParams(location.search);
+const isLocal = (h)=>/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(h||'');
+const defaultApi = ()=> isLocal(location.hostname) ? 'http://localhost:3333/api'
+  : location.origin.replace(/admin/i,'api').replace(/\/$/,'')+'/api';
 let stored = localStorage.getItem('kanni_api');
 if (stored && /localhost|127\.0\.0\.1/.test(stored) && !isLocal(location.hostname)) stored = null;
-const API = (params.get('api') || stored || defaultApi()).replace(/\/$/, '');
-const API_ORIGIN = API.replace(/\/api\/?$/, '');
-const imageUrl = (p) => (!p ? '' : /^https?:\/\//.test(p) ? p : API_ORIGIN + p);
+const API = (params.get('api') || stored || defaultApi()).replace(/\/$/,'');
+const API_ORIGIN = API.replace(/\/api\/?$/,'');
+const imageUrl = (p)=> !p ? '' : /^https?:\/\//.test(p) ? p : API_ORIGIN+p;
 localStorage.setItem('kanni_api', API);
 $('#apiBaseInput').value = API;
-$('#apiSave').onclick = () => {
-  const v = $('#apiBaseInput').value.trim().replace(/\/$/, '');
-  if (v) { localStorage.setItem('kanni_api', v); location.href = location.pathname; }
-};
+$('#apiSave').onclick = ()=>{ const v=$('#apiBaseInput').value.trim().replace(/\/$/,''); if(v){localStorage.setItem('kanni_api',v);location.href=location.pathname;} };
 
 let token = localStorage.getItem('kanni_admin_token') || '';
 let adminEmail = localStorage.getItem('kanni_admin_email') || '';
 let tab = 'dashboard';
+const q = { listings:'', drivers:'', orders:'', settlements:'' };
 
-function toast(msg, isErr) {
-  const t = $('#toast'); t.textContent = msg; t.className = 'toast show' + (isErr ? ' err' : '');
-  clearTimeout(t._h); t._h = setTimeout(() => (t.className = 'toast'), 2600);
-}
+function toast(msg,isErr){ const t=$('#toast'); t.innerHTML=msg; t.className='toast show'+(isErr?' err':''); clearTimeout(t._h); t._h=setTimeout(()=>t.className='toast',2600); }
 
-async function api(path, opts = {}) {
-  const res = await fetch(API + path, {
-    ...opts,
-    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}), ...(opts.headers || {}) },
-  });
-  const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
-  if (!res.ok) {
-    const m = data && (data.message || data.error);
-    throw new Error(Array.isArray(m) ? m.join(', ') : m || res.statusText);
-  }
+async function api(path,opts={}){
+  const res = await fetch(API+path,{...opts,headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{}),...(opts.headers||{})}});
+  const text = await res.text(); const data = text?JSON.parse(text):null;
+  if(!res.ok){ const m=data&&(data.message||data.error); throw new Error(Array.isArray(m)?m.join(', '):m||res.statusText); }
   return data;
 }
 
-const buyerPrice = (payout, m, f) => Math.round((payout * (1 + m / 100) + f) * 100) / 100;
-const inr = (n) => '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
-const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const shortId = (id) => (id ? String(id).slice(0, 8) : '');
-const produceName = (names) => names ? (names.en || Object.values(names)[0]) : 'Produce';
-function badge(status) {
-  const s = (status || '').toLowerCase();
-  let c = '';
-  if (['live','delivered','settled','paid','captured','verified'].includes(s)) c = 'green';
-  else if (['pending','created','held','pickup_assigned','assigned','unassigned'].includes(s)) c = 'amber';
-  else if (['cancelled','rejected','refunded','failed'].includes(s)) c = 'red';
-  return `<span class="badge ${c}">${esc(status || '—')}</span>`;
-}
+const buyerPrice=(p,m,f)=>Math.round((p*(1+m/100)+f)*100)/100;
+const inr=(n)=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2});
+const esc=(s)=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const sid=(id)=>id?String(id).slice(0,8):'';
+const pname=(n)=>n?(n.en||Object.values(n)[0]):'Produce';
+function pill(status,label){ const s=(status||'').toLowerCase(); let c='grey';
+  if(['live','delivered','settled','paid','captured','verified'].includes(s))c='green';
+  else if(['pending','created','held','pickup_assigned','assigned','unassigned'].includes(s))c='amber';
+  else if(['cancelled','rejected','refunded','failed'].includes(s))c='red';
+  return `<span class="pill ${c}">${esc(label||status||'—')}</span>`; }
+const filt=(arr,s,fields)=> !s?arr:arr.filter(o=>fields.some(f=>String(o[f]??'').toLowerCase().includes(s.toLowerCase())));
 
-// ===== Login (email + password) =====
-$('#loginForm').onsubmit = async (e) => {
-  e.preventDefault();
-  $('#loginErr').textContent = '';
-  $('#loginBtn').disabled = true; $('#loginBtn').textContent = 'Signing in…';
-  try {
-    const r = await api('/auth/admin/login', {
-      method: 'POST',
-      body: JSON.stringify({ email: $('#email').value.trim(), password: $('#password').value }),
-    });
-    token = r.token; adminEmail = r.email || $('#email').value.trim();
-    localStorage.setItem('kanni_admin_token', token);
-    localStorage.setItem('kanni_admin_email', adminEmail);
+/* ---------- Login ---------- */
+$('#loginForm').onsubmit = async (e)=>{
+  e.preventDefault(); $('#loginErr').textContent=''; const b=$('#loginBtn'); b.disabled=true; b.textContent='Signing in…';
+  try{
+    const r = await api('/auth/admin/login',{method:'POST',body:JSON.stringify({email:$('#email').value.trim(),password:$('#password').value})});
+    token=r.token; adminEmail=r.email||$('#email').value.trim();
+    localStorage.setItem('kanni_admin_token',token); localStorage.setItem('kanni_admin_email',adminEmail);
     enterApp();
-  } catch (err) {
-    $('#loginErr').textContent = err.message;
-  } finally {
-    $('#loginBtn').disabled = false; $('#loginBtn').textContent = 'Sign in';
-  }
+  }catch(err){ $('#loginErr').textContent=err.message; }
+  finally{ b.disabled=false; b.textContent='Sign in'; }
 };
-
-$('#logout').onclick = () => {
-  token = ''; localStorage.removeItem('kanni_admin_token');
-  $('#appView').classList.remove('show'); $('#loginView').style.display = '';
-};
-
-function enterApp() {
-  $('#loginView').style.display = 'none';
-  $('#appView').classList.add('show');
-  $('#whoami').textContent = adminEmail;
-  $('#avatar').textContent = (adminEmail[0] || 'A').toUpperCase();
-  loadAll();
+$('#logout').onclick = ()=>{ token=''; localStorage.removeItem('kanni_admin_token'); $('#appView').classList.remove('show'); $('#loginView').style.display=''; };
+function enterApp(){
+  $('#loginView').style.display='none'; $('#appView').classList.add('show');
+  $('#whoami').textContent=adminEmail; $('#avatar').textContent=(adminEmail[0]||'A').toUpperCase();
+  buildNav(); loadAll();
 }
 
-// ===== Nav =====
-const TITLES = { dashboard: 'Dashboard', listings: 'Listing review', drivers: 'Driver verification', orders: 'Orders', settings: 'Settings' };
-document.querySelectorAll('.nav-item').forEach((b) => {
-  b.onclick = () => {
-    tab = b.dataset.tab;
-    document.querySelectorAll('.nav-item').forEach((x) => x.classList.toggle('active', x === b));
-    $('#pageTitle').textContent = TITLES[tab];
-    render();
-  };
-});
-$('#refreshBtn').onclick = () => loadAll();
+/* ---------- Nav ---------- */
+const NAV=[
+  {sec:'Overview', items:[{id:'dashboard',label:'Dashboard',icon:'grid'}]},
+  {sec:'Operations', items:[{id:'listings',label:'Listings',icon:'tag',badge:'listings'},{id:'drivers',label:'Drivers',icon:'truck',badge:'drivers'},{id:'orders',label:'Orders',icon:'box'}]},
+  {sec:'Finance', items:[{id:'settlements',label:'Settlements',icon:'chart'}]},
+  {sec:'System', items:[{id:'settings',label:'Settings',icon:'gear'}]},
+];
+const TITLES={dashboard:['Dashboard','Live overview of the marketplace'],listings:['Listings','Review &amp; price farmer submissions'],drivers:['Drivers','Verify onboarding documents'],orders:['Orders','Track and resolve orders'],settlements:['Settlements','Money settled to farmers, drivers &amp; KANNI'],settings:['Settings','Platform configuration']};
+function buildNav(){
+  $('#nav').innerHTML = NAV.map(g=>`<div class="nav-sec">${g.sec}</div>`+g.items.map(it=>
+    `<div class="nav-item ${it.id===tab?'active':''}" data-tab="${it.id}">${ic(it.icon)} <span>${it.label}</span>${it.badge?`<span class="nav-badge" data-badge="${it.badge}" style="display:none"></span>`:''}</div>`).join('')).join('');
+  document.querySelectorAll('.nav-item').forEach(b=>b.onclick=()=>{
+    tab=b.dataset.tab; document.querySelectorAll('.nav-item').forEach(x=>x.classList.toggle('active',x===b));
+    const t=TITLES[tab]; $('#pageTitle').innerHTML=t[0]; $('#pageSub').innerHTML=t[1]; render();
+  });
+}
+$('#refreshBtn').onclick=()=>loadAll();
 
-// ===== Data =====
-const state = { stats: null, listings: [], drivers: [], orders: [], settings: null, loading: true };
+/* ---------- Data ---------- */
+const state={stats:null,listings:[],drivers:[],orders:[],settings:null,loading:true};
+async function loadAll(){
+  state.loading=true; render();
+  try{
+    const [stats,listings,drivers,orders,settings]=await Promise.all([
+      api('/admin/stats'),api('/admin/listings'),api('/admin/drivers'),api('/admin/orders'),api('/admin/settings').catch(()=>null)]);
+    Object.assign(state,{stats,listings,drivers,orders,settings});
+    setBadge('listings',listings.length); setBadge('drivers',drivers.length);
+  }catch(e){ toast(e.message,true); if(/401|unauth/i.test(e.message)) $('#logout').onclick(); }
+  finally{ state.loading=false; render(); }
+}
+function setBadge(key,n){ const el=document.querySelector(`[data-badge="${key}"]`); if(!el)return; if(n>0){el.textContent=n;el.style.display='';}else el.style.display='none'; }
 
-async function loadAll() {
-  state.loading = true; render();
-  try {
-    const [stats, listings, drivers, orders, settings] = await Promise.all([
-      api('/admin/stats'), api('/admin/listings'), api('/admin/drivers'), api('/admin/orders'),
-      api('/admin/settings').catch(() => null),
-    ]);
-    Object.assign(state, { stats, listings, drivers, orders, settings });
-    const lb = $('#badgeListings'), db = $('#badgeDrivers');
-    lb.outerHTML = listings.length ? `<span class="nav-badge" id="badgeListings">${listings.length}</span>` : `<span id="badgeListings"></span>`;
-    db.outerHTML = drivers.length ? `<span class="nav-badge" id="badgeDrivers">${drivers.length}</span>` : `<span id="badgeDrivers"></span>`;
-  } catch (e) {
-    toast(e.message, true);
-    if (/401|unauth/i.test(e.message)) $('#logout').onclick();
-  } finally { state.loading = false; render(); }
+/* ---------- Render ---------- */
+function render(){
+  if(state.loading && !state.stats){ $('#panel').innerHTML=`<div class="grid k4">${'<div class="kpi"><div class="ic"></div><div class="skel" style="width:60%"></div><div class="skel" style="width:80%;margin-top:10px"></div></div>'.repeat(4)}</div>`; return; }
+  ({dashboard:dash,listings:listingsView,drivers:driversView,orders:ordersView,settlements:settleView,settings:settingsView}[tab]||dash)();
+}
+function kpi(icon,n,l,cls){ return `<div class="kpi ${cls||''}"><div class="ic">${ic(icon,18)}</div><div class="n">${n}</div><div class="l">${l}</div></div>`; }
+function emptyState(msg){ return `<div class="card"><div class="empty"><div class="big">${ic('grid',22)}</div>${msg}</div></div>`; }
+function toolbar(key,placeholder,count){
+  return `<div class="toolbar"><div class="searchbox">${ic('search',16)}<input id="search" placeholder="${placeholder}" value="${esc(q[key])}"/></div><span class="count" id="count">${count}</span></div>`;
 }
 
-// ===== Render =====
-function render() {
-  if (state.loading && !state.stats) { $('#panel').innerHTML = `<div class="card"><div class="empty">Loading…</div></div>`; return; }
-  ({ dashboard: renderDashboard, listings: renderListings, drivers: renderDrivers, orders: renderOrders, settings: renderSettings }[tab] || renderDashboard)();
-}
-
-function statCard(ic, n, l, warn) {
-  return `<div class="stat ${warn && Number(n) > 0 ? 'warn' : ''}"><div class="ic">${ic}</div><div class="n">${n}</div><div class="l">${l}</div></div>`;
-}
-
-function renderDashboard() {
-  const s = state.stats || {};
-  $('#panel').innerHTML = `
-    <div class="grid k3" style="margin-bottom:16px">
-      ${statCard('📋', s.pending_listings ?? 0, 'Listings awaiting review', true)}
-      ${statCard('🪪', s.pending_drivers ?? 0, 'Drivers to verify', true)}
-      ${statCard('⏳', s.active_orders ?? 0, 'Orders in flight')}
+function dash(){
+  const s=state.stats||{};
+  $('#panel').innerHTML=`
+    <div class="sec-title">Needs attention</div>
+    <div class="grid k3">
+      ${kpi('tag',s.pending_listings??0,'Listings awaiting review',(s.pending_listings>0?'amber':''))}
+      ${kpi('users',s.pending_drivers??0,'Drivers to verify',(s.pending_drivers>0?'amber':''))}
+      ${kpi('box',s.active_orders??0,'Orders in flight','blue')}
     </div>
-    <div class="card">
-      <div class="card-h">Marketplace</div>
-      <div class="grid k4">
-        ${statCard('🟢', s.live_listings ?? 0, 'Live listings')}
-        ${statCard('🧾', s.total_orders ?? 0, 'Total orders')}
-        ${statCard('✅', s.delivered_orders ?? 0, 'Delivered')}
-        ${statCard('✖️', s.cancelled_orders ?? 0, 'Cancelled')}
-      </div>
+    <div class="sec-title">Marketplace</div>
+    <div class="grid k4">
+      ${kpi('tag',s.live_listings??0,'Live listings')}
+      ${kpi('box',s.total_orders??0,'Total orders')}
+      ${kpi('chart',s.delivered_orders??0,'Delivered')}
+      ${kpi('refresh',s.cancelled_orders??0,'Cancelled')}
     </div>
-    <div class="card">
-      <div class="card-h">Money (settled)</div>
-      <div class="grid k4">
-        ${statCard('💰', inr(s.gmv), 'GMV')}
-        ${statCard('🏦', inr(s.kanni_revenue), 'KANNI revenue')}
-        ${statCard('🧑‍🌾', inr(s.farmer_paid), 'Paid to farmers')}
-        ${statCard('🚚', inr(s.driver_paid), 'Paid to drivers')}
-      </div>
+    <div class="sec-title">Finance (settled)</div>
+    <div class="grid k4">
+      ${kpi('chart',inr(s.gmv),'GMV')}
+      ${kpi('chart',inr(s.kanni_revenue),'KANNI revenue')}
+      ${kpi('users',inr(s.farmer_paid),'Paid to farmers')}
+      ${kpi('truck',inr(s.driver_paid),'Paid to drivers')}
     </div>`;
 }
 
-function renderListings() {
-  const el = $('#panel');
-  if (!state.listings.length) { el.innerHTML = `<div class="card"><div class="empty"><div class="big">🎉</div>No listings awaiting review.</div></div>`; return; }
-  el.innerHTML = state.listings.map((l) => {
-    const payout = Number(l.payout_price);
-    return `<div class="card" data-listing="${l.id}">
-      <div class="row" style="justify-content:space-between;align-items:flex-start">
-        <div>
-          <div style="font-weight:700;font-size:15px">${esc(produceName(l.produce_names))} ${badge('grade ' + (l.grade || '?'))}</div>
-          <div class="muted" style="margin-top:3px">${esc(l.seller_name || 'Unknown seller')} · ${Number(l.qty)} ${esc(l.unit)} · MOQ ${Number(l.moq)} · payout ${inr(payout)}/${esc(l.unit)}</div>
-        </div>
-        <div class="muted">#${shortId(l.id)}</div>
-      </div>
-      ${(l.photos && l.photos.length) ? `<div class="thumbs">${l.photos.map((p) => `<img class="thumb" src="${imageUrl(p)}" />`).join('')}</div>` : ''}
-      <div class="row" style="margin-top:14px">
-        <div class="minifield"><label>Grade</label><select class="f-grade">${['A','B','C'].map((g) => `<option ${g === (l.grade || 'A') ? 'selected' : ''}>${g}</option>`).join('')}</select></div>
-        <div class="minifield"><label>Margin %</label><input class="f-margin" type="number" min="0" step="0.5" value="10" /></div>
-        <div class="minifield"><label>Flat fee ₹</label><input class="f-fee" type="number" min="0" step="0.5" value="0" /></div>
-        <div class="minifield"><label>Buyer price</label><div class="price f-preview" style="padding:9px 0">${inr(buyerPrice(payout, 10, 0))}</div></div>
-        <div style="flex:1"></div>
-        <button class="f-approve">Approve &amp; go live</button>
-        <button class="ghost f-reject">Reject</button>
-      </div>
-    </div>`;
-  }).join('');
-
-  state.listings.forEach((l) => {
-    const card = $(`[data-listing="${l.id}"]`), payout = Number(l.payout_price);
-    const upd = () => {
-      const m = Number(card.querySelector('.f-margin').value) || 0, f = Number(card.querySelector('.f-fee').value) || 0;
-      card.querySelector('.f-preview').textContent = inr(buyerPrice(payout, m, f));
-    };
-    card.querySelector('.f-margin').oninput = upd; card.querySelector('.f-fee').oninput = upd;
-    card.querySelector('.f-approve').onclick = async (e) => {
-      e.target.disabled = true;
-      try {
-        await api(`/admin/listings/${l.id}/review`, { method: 'POST', body: JSON.stringify({
-          action: 'approve', grade: card.querySelector('.f-grade').value,
-          marginPct: Number(card.querySelector('.f-margin').value) || 0,
-          flatFee: Number(card.querySelector('.f-fee').value) || 0,
-        }) });
-        toast('Listing approved & live'); loadAll();
-      } catch (err) { toast(err.message, true); e.target.disabled = false; }
-    };
-    card.querySelector('.f-reject').onclick = async () => {
-      const reason = prompt('Reject reason?', 'Quality / pricing not acceptable');
-      if (reason === null) return;
-      try { await api(`/admin/listings/${l.id}/review`, { method: 'POST', body: JSON.stringify({ action: 'reject', rejectReason: reason }) }); toast('Listing rejected'); loadAll(); }
-      catch (err) { toast(err.message, true); }
-    };
-  });
+function listingsView(){
+  const el=$('#panel');
+  const fill=()=>{
+    const rows=filt(state.listings,q.listings,['seller_name']).filter(l=>!q.listings||pname(l.produce_names).toLowerCase().includes(q.listings.toLowerCase())||(l.seller_name||'').toLowerCase().includes(q.listings.toLowerCase()));
+    $('#count').textContent=`${rows.length} pending`;
+    $('#rows').innerHTML = rows.length? rows.map(l=>reviewCard(l)).join('') : emptyCardInner('All caught up — no listings to review.');
+    rows.forEach(wireReview);
+  };
+  if(!state.listings.length){ el.innerHTML=toolbar('listings','Search produce or seller…','0 pending')+emptyCardInner('All caught up — no listings to review.'); $('#search').oninput=e=>{q.listings=e.target.value;}; return; }
+  el.innerHTML=toolbar('listings','Search produce or seller…','')+`<div id="rows"></div>`;
+  $('#search').oninput=e=>{q.listings=e.target.value;fill();};
+  fill();
+}
+function emptyCardInner(msg){ return `<div class="card"><div class="empty"><div class="big">${ic('tag',22)}</div>${msg}</div></div>`; }
+function reviewCard(l){
+  const payout=Number(l.payout_price);
+  return `<div class="review-card" data-listing="${l.id}">
+    <div class="flex between" style="align-items:flex-start">
+      <div><div style="font-weight:700;font-size:15px">${esc(pname(l.produce_names))} &nbsp;${pill('grade','Grade '+(l.grade||'?'))}</div>
+      <div class="sub-c" style="margin-top:4px">${esc(l.seller_name||'Unknown seller')} · ${Number(l.qty)} ${esc(l.unit)} · MOQ ${Number(l.moq)} · payout ${inr(payout)}/${esc(l.unit)}</div></div>
+      <div class="sub-c">#${sid(l.id)}</div>
+    </div>
+    ${(l.photos&&l.photos.length)?`<div class="thumbs">${l.photos.map(p=>`<img class="thumb" src="${imageUrl(p)}"/>`).join('')}</div>`:''}
+    <div class="flex gap wrap" style="margin-top:15px;align-items:flex-end">
+      <div class="minifield"><label>Grade</label><select class="f-grade">${['A','B','C'].map(g=>`<option ${g===(l.grade||'A')?'selected':''}>${g}</option>`).join('')}</select></div>
+      <div class="minifield"><label>Margin %</label><input class="f-margin" type="number" min="0" step="0.5" value="10"/></div>
+      <div class="minifield"><label>Flat fee ₹</label><input class="f-fee" type="number" min="0" step="0.5" value="0"/></div>
+      <div class="minifield"><label>Buyer price</label><div class="price f-preview" style="padding:9px 0">${inr(buyerPrice(payout,10,0))}</div></div>
+      <div style="flex:1"></div>
+      <button class="f-approve">Approve &amp; go live</button>
+      <button class="ghost f-reject">Reject</button>
+    </div></div>`;
+}
+function wireReview(l){
+  const card=$(`[data-listing="${l.id}"]`); if(!card)return; const payout=Number(l.payout_price);
+  const upd=()=>{const m=Number(card.querySelector('.f-margin').value)||0,f=Number(card.querySelector('.f-fee').value)||0;card.querySelector('.f-preview').textContent=inr(buyerPrice(payout,m,f));};
+  card.querySelector('.f-margin').oninput=upd; card.querySelector('.f-fee').oninput=upd;
+  card.querySelector('.f-approve').onclick=async(e)=>{e.target.disabled=true;
+    try{await api(`/admin/listings/${l.id}/review`,{method:'POST',body:JSON.stringify({action:'approve',grade:card.querySelector('.f-grade').value,marginPct:Number(card.querySelector('.f-margin').value)||0,flatFee:Number(card.querySelector('.f-fee').value)||0})});toast('Listing approved &amp; live');loadAll();}
+    catch(err){toast(err.message,true);e.target.disabled=false;}};
+  card.querySelector('.f-reject').onclick=async()=>{const reason=prompt('Reject reason?','Quality / pricing not acceptable');if(reason===null)return;
+    try{await api(`/admin/listings/${l.id}/review`,{method:'POST',body:JSON.stringify({action:'reject',rejectReason:reason})});toast('Listing rejected');loadAll();}catch(err){toast(err.message,true);}};
 }
 
-function renderDrivers() {
-  const el = $('#panel');
-  if (!state.drivers.length) { el.innerHTML = `<div class="card"><div class="empty"><div class="big">🎉</div>No drivers awaiting verification.</div></div>`; return; }
-  el.innerHTML = `<div class="card"><table>
-    <thead><tr><th>Phone</th><th>Vehicle</th><th>Capacity</th><th style="text-align:right">Action</th></tr></thead>
-    <tbody>${state.drivers.map((d) => `<tr data-driver="${d.user_id}">
-      <td style="font-weight:600">${esc(d.phone)}</td><td>${esc(d.vehicle_type || '—')}</td><td>${Number(d.capacity_kg)} kg</td>
-      <td style="text-align:right"><button class="sm d-ok">Verify</button> <button class="sm ghost d-no">Reject</button></td></tr>`).join('')}</tbody></table></div>`;
-  state.drivers.forEach((d) => {
-    const row = $(`[data-driver="${d.user_id}"]`);
-    const act = async (approve) => { try { await api(`/admin/drivers/${d.user_id}/verify`, { method: 'POST', body: JSON.stringify({ approve }) }); toast(approve ? 'Driver verified' : 'Driver rejected'); loadAll(); } catch (e) { toast(e.message, true); } };
-    row.querySelector('.d-ok').onclick = () => act(true);
-    row.querySelector('.d-no').onclick = () => act(false);
-  });
+function driversView(){
+  const el=$('#panel');
+  if(!state.drivers.length){ el.innerHTML=toolbar('drivers','Search phone…','0 pending')+`<div class="card"><div class="empty"><div class="big">${ic('truck',22)}</div>No drivers awaiting verification.</div></div>`; $('#search').oninput=e=>{q.drivers=e.target.value;}; return; }
+  el.innerHTML=toolbar('drivers','Search phone…','')+`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>Phone</th><th>Vehicle</th><th>Capacity</th><th style="text-align:right">Action</th></tr></thead><tbody id="rows"></tbody></table></div></div>`;
+  const fill=()=>{ const rows=filt(state.drivers,q.drivers,['phone','vehicle_type']); $('#count').textContent=`${rows.length} pending`;
+    $('#rows').innerHTML=rows.map(d=>`<tr data-driver="${d.user_id}"><td class="id">${esc(d.phone)}</td><td style="text-transform:capitalize">${esc((d.vehicle_type||'—').replace('_',' '))}</td><td>${Number(d.capacity_kg)} kg</td><td style="text-align:right"><button class="sm d-ok">Verify</button> <button class="sm ghost d-no">Reject</button></td></tr>`).join('');
+    rows.forEach(d=>{const row=$(`[data-driver="${d.user_id}"]`);const act=async(a)=>{try{await api(`/admin/drivers/${d.user_id}/verify`,{method:'POST',body:JSON.stringify({approve:a})});toast(a?'Driver verified':'Driver rejected');loadAll();}catch(e){toast(e.message,true);}};row.querySelector('.d-ok').onclick=()=>act(true);row.querySelector('.d-no').onclick=()=>act(false);});
+  };
+  $('#search').oninput=e=>{q.drivers=e.target.value;fill();}; fill();
 }
 
-function renderOrders() {
-  const el = $('#panel');
-  if (!state.orders.length) { el.innerHTML = `<div class="card"><div class="empty">No orders yet.</div></div>`; return; }
-  el.innerHTML = `<div class="card"><table>
-    <thead><tr><th>Order</th><th>Buyer</th><th>Total</th><th>Status</th><th>Payment</th><th>Settlement</th><th></th></tr></thead>
-    <tbody>${state.orders.map((o) => `<tr data-order="${o.id}">
-      <td><span style="font-weight:700">#${shortId(o.id)}</span><div class="muted" style="font-size:12px">${new Date(o.created_at).toLocaleDateString('en-IN')}</div></td>
-      <td>${esc(o.buyer_name || '—')}</td><td style="font-weight:600">${inr(o.total)}</td>
-      <td>${badge(o.status)}</td><td>${badge(o.payment_status)}</td>
-      <td>${badge(o.settlement_status)}${o.kanni_margin ? `<div class="muted" style="font-size:12px">margin ${inr(o.kanni_margin)}</div>` : ''}</td>
-      <td style="text-align:right">${o.refundable ? '<button class="sm danger o-refund">Refund</button>' : ''}</td></tr>`).join('')}</tbody></table></div>`;
-  state.orders.filter((o) => o.refundable).forEach((o) => {
-    $(`[data-order="${o.id}"] .o-refund`).onclick = async (e) => {
-      const reason = prompt(`Refund order #${shortId(o.id)} (${inr(o.total)})?\nReason:`, 'Refunded by admin');
-      if (reason === null) return;
-      e.target.disabled = true;
-      try { const r = await api(`/admin/orders/${o.id}/refund`, { method: 'POST', body: JSON.stringify({ reason }) }); toast(r.post_delivery ? 'Post-delivery refund issued' : 'Order cancelled & refunded'); loadAll(); }
-      catch (err) { toast(err.message, true); e.target.disabled = false; }
-    };
-  });
+function ordersView(){
+  const el=$('#panel');
+  el.innerHTML=toolbar('orders','Search order id or buyer…','')+`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>Order</th><th>Buyer</th><th>Total</th><th>Status</th><th>Payment</th><th>Settlement</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div>`;
+  const fill=()=>{ const rows=filt(state.orders,q.orders,['id','buyer_name','status']); $('#count').textContent=`${rows.length} orders`;
+    $('#rows').innerHTML = rows.length? rows.map(o=>`<tr data-order="${o.id}"><td><span class="id">#${sid(o.id)}</span><div class="sub-c">${new Date(o.created_at).toLocaleDateString('en-IN')}</div></td><td>${esc(o.buyer_name||'—')}</td><td style="font-weight:700">${inr(o.total)}</td><td>${pill(o.status)}</td><td>${pill(o.payment_status)}</td><td>${pill(o.settlement_status)}${o.kanni_margin?`<div class="sub-c">margin ${inr(o.kanni_margin)}</div>`:''}</td><td style="text-align:right">${o.refundable?'<button class="sm danger o-refund">Refund</button>':''}</td></tr>`).join('') : `<tr><td colspan="7"><div class="empty">No matching orders.</div></td></tr>`;
+    rows.filter(o=>o.refundable).forEach(o=>{$(`[data-order="${o.id}"] .o-refund`).onclick=async(e)=>{const reason=prompt(`Refund order #${sid(o.id)} (${inr(o.total)})?\nReason:`,'Refunded by admin');if(reason===null)return;e.target.disabled=true;try{const r=await api(`/admin/orders/${o.id}/refund`,{method:'POST',body:JSON.stringify({reason})});toast(r.post_delivery?'Post-delivery refund issued':'Order cancelled &amp; refunded');loadAll();}catch(err){toast(err.message,true);e.target.disabled=false;}};});
+  };
+  $('#search').oninput=e=>{q.orders=e.target.value;fill();}; fill();
 }
 
-function renderSettings() {
-  const st = state.settings;
-  if (!st) { $('#panel').innerHTML = `<div class="card"><div class="empty">Settings unavailable.</div></div>`; return; }
-  const on = !!st.auto_approve;
-  $('#panel').innerHTML = `
-    <div class="card">
-      <div class="card-h">Listing review</div>
-      <div class="row" style="justify-content:space-between;align-items:center">
-        <div style="max-width:560px">
-          <div style="font-weight:600">Auto-approve listings</div>
-          <div class="muted" style="margin-top:3px">When on, new farmer listings skip the review queue and go live immediately with the default margin/fee below.</div>
-        </div>
-        <label class="switch"><input type="checkbox" id="autoToggle" ${on ? 'checked' : ''}/><span class="slider"></span></label>
-      </div>
-      <div class="row" style="margin-top:18px">
-        <div class="minifield"><label>Default margin %</label><input id="setMargin" type="number" min="0" step="0.5" value="${Number(st.default_margin_pct)}" /></div>
-        <div class="minifield"><label>Default flat fee ₹</label><input id="setFee" type="number" min="0" step="0.5" value="${Number(st.default_flat_fee)}" /></div>
-        <div style="flex:1"></div>
-        <button class="ghost" id="setSave">Save defaults</button>
+function settleView(){
+  const el=$('#panel');
+  const settled=state.orders.filter(o=>o.settlement_status==='settled');
+  const revenue=settled.reduce((a,o)=>a+Number(o.kanni_margin||0),0);
+  const s=state.stats||{};
+  const head=`<div class="grid k3" style="margin-bottom:18px">
+    ${kpi('chart',inr(s.kanni_revenue??revenue),'KANNI revenue')}
+    ${kpi('users',inr(s.farmer_paid),'Paid to farmers')}
+    ${kpi('truck',inr(s.driver_paid),'Paid to drivers')}</div>`;
+  el.innerHTML=head+toolbar('settlements','Search order or buyer…','')+`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>Order</th><th>Buyer</th><th>Gross</th><th>KANNI margin</th><th>Date</th></tr></thead><tbody id="rows"></tbody></table></div></div>`;
+  const fill=()=>{ const rows=filt(settled,q.settlements,['id','buyer_name']); $('#count').textContent=`${rows.length} settled`;
+    $('#rows').innerHTML = rows.length? rows.map(o=>`<tr><td class="id">#${sid(o.id)}</td><td>${esc(o.buyer_name||'—')}</td><td style="font-weight:600">${inr(o.total)}</td><td class="price">${inr(o.kanni_margin)}</td><td class="sub-c">${new Date(o.created_at).toLocaleDateString('en-IN')}</td></tr>`).join('') : `<tr><td colspan="5"><div class="empty">No settlements yet.</div></td></tr>`;
+  };
+  $('#search').oninput=e=>{q.settlements=e.target.value;fill();}; fill();
+}
+
+function settingsView(){
+  const st=state.settings;
+  if(!st){ $('#panel').innerHTML=emptyState('Settings unavailable.'); return; }
+  const on=!!st.auto_approve;
+  $('#panel').innerHTML=`
+    <div class="card pad">
+      <div class="flex between center"><div style="max-width:560px"><div style="font-weight:700;font-size:15px">Auto-approve listings</div>
+      <div class="sub-c" style="margin-top:4px">When on, new farmer listings skip the review queue and go live immediately with the default margin/fee below.</div></div>
+      <label class="switch"><input type="checkbox" id="autoToggle" ${on?'checked':''}/><span class="slider"></span></label></div>
+      <div class="flex gap wrap" style="margin-top:20px;align-items:flex-end">
+        <div class="minifield"><label>Default margin %</label><input id="setMargin" type="number" min="0" step="0.5" value="${Number(st.default_margin_pct)}"/></div>
+        <div class="minifield"><label>Default flat fee ₹</label><input id="setFee" type="number" min="0" step="0.5" value="${Number(st.default_flat_fee)}"/></div>
+        <div style="flex:1"></div><button class="ghost" id="setSave">Save defaults</button>
       </div>
     </div>
-    <div class="card">
-      <div class="card-h">Account</div>
-      <div class="muted">Signed in as <b style="color:var(--ink)">${esc(adminEmail)}</b>. API: <code>${esc(API)}</code></div>
+    <div class="card pad"><div style="font-weight:700;margin-bottom:8px">Account</div>
+      <div class="sub-c">Signed in as <b style="color:var(--ink)">${esc(adminEmail)}</b></div>
+      <div class="sub-c" style="margin-top:4px">API endpoint <code>${esc(API)}</code></div>
     </div>`;
-  $('#autoToggle').onchange = async (e) => {
-    try { state.settings = await api('/admin/settings', { method: 'POST', body: JSON.stringify({ autoApprove: e.target.checked }) }); toast('Auto-approve ' + (state.settings.auto_approve ? 'enabled' : 'disabled')); }
-    catch (err) { toast(err.message, true); e.target.checked = !e.target.checked; }
-  };
-  $('#setSave').onclick = async () => {
-    try { state.settings = await api('/admin/settings', { method: 'POST', body: JSON.stringify({ defaultMarginPct: Number($('#setMargin').value) || 0, defaultFlatFee: Number($('#setFee').value) || 0 }) }); toast('Defaults saved'); }
-    catch (err) { toast(err.message, true); }
-  };
+  $('#autoToggle').onchange=async(e)=>{try{state.settings=await api('/admin/settings',{method:'POST',body:JSON.stringify({autoApprove:e.target.checked})});toast('Auto-approve '+(state.settings.auto_approve?'enabled':'disabled'));}catch(err){toast(err.message,true);e.target.checked=!e.target.checked;}};
+  $('#setSave').onclick=async()=>{try{state.settings=await api('/admin/settings',{method:'POST',body:JSON.stringify({defaultMarginPct:Number($('#setMargin').value)||0,defaultFlatFee:Number($('#setFee').value)||0})});toast('Defaults saved');}catch(err){toast(err.message,true);}};
 }
 
-// ===== Boot =====
-if (token) { adminEmail = adminEmail || 'admin'; enterApp(); }
+/* ---------- Boot ---------- */
+if(token){ adminEmail=adminEmail||'admin'; enterApp(); }
 </script>
 </body>
 </html>
