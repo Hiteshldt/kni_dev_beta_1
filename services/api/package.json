@@ -1,0 +1,41 @@
+{
+  "name": "@kanni/api",
+  "version": "0.1.0",
+  "description": "KANNI backend API (NestJS)",
+  "private": true,
+  "scripts": {
+    "db:up": "bash scripts/db-up.sh",
+    "db:down": "bash scripts/db-down.sh",
+    "db:migrate": "ts-node scripts/migrate.ts",
+    "db:seed": "ts-node scripts/seed.ts",
+    "db:reset": "bash scripts/db-up.sh && ts-node scripts/migrate.ts && ts-node scripts/seed.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/main.js",
+    "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
+    "smoke": "bash scripts/smoke.sh",
+    "smoke:logistics": "bash scripts/smoke-logistics.sh",
+    "smoke:batch": "bash scripts/smoke-batch.sh",
+    "smoke:trust": "bash scripts/smoke-trust.sh",
+    "test": "echo \"(unit tests TBD per ENGINEERING_PLAN J1)\" && exit 0"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.4.4",
+    "@nestjs/config": "^3.2.3",
+    "@nestjs/core": "^10.4.4",
+    "@nestjs/jwt": "^10.2.0",
+    "@nestjs/platform-express": "^10.4.4",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "dotenv": "^16.4.5",
+    "pg": "^8.13.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "@types/pg": "^8.11.10",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.6.2"
+  }
+}

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KANNI · Admin Console</title>
+<style>
+  :root {
+    --green: #2e7d32; --green-d: #1b5e20; --bg: #f5f7f4; --card: #fff;
+    --ink: #1a2419; --muted: #6b7a68; --line: #e2e8df; --amber: #b26a00;
+    --red: #c62828; --blue: #1565c0;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+         background: var(--bg); color: var(--ink); }
+  header { background: var(--green); color: #fff; padding: 12px 20px; display: flex;
+           align-items: center; gap: 12px; }
+  header h1 { font-size: 18px; margin: 0; font-weight: 700; letter-spacing: .3px; }
+  header .sp { flex: 1; }
+  header small { opacity: .85; }
+  button { font: inherit; cursor: pointer; border: 0; border-radius: 8px; padding: 8px 14px;
+           background: var(--green); color: #fff; }
+  button.ghost { background: #fff; color: var(--green-d); border: 1px solid var(--line); }
+  button.danger { background: var(--red); }
+  button.small { padding: 5px 10px; font-size: 13px; }
+  button:disabled { opacity: .5; cursor: default; }
+  input, select { font: inherit; padding: 8px 10px; border: 1px solid var(--line);
+                  border-radius: 8px; background: #fff; }
+  a { color: var(--green-d); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 20px; }
+  .tabs { display: flex; gap: 6px; margin: 16px 0; flex-wrap: wrap; }
+  .tabs button { background: #fff; color: var(--muted); border: 1px solid var(--line); }
+  .tabs button.active { background: var(--green); color: #fff; border-color: var(--green); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+          padding: 16px; margin-bottom: 14px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+  .tile { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .tile .n { font-size: 26px; font-weight: 700; }
+  .tile .l { color: var(--muted); font-size: 13px; }
+  .tile.warn .n { color: var(--amber); }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: var(--muted); }
+  .field input, .field select { width: 120px; }
+  .muted { color: var(--muted); }
+  .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px;
+          font-weight: 600; background: #eef2ec; color: var(--muted); }
+  .pill.live, .pill.delivered, .pill.settled, .pill.paid { background: #e7f4e8; color: var(--green-d); }
+  .pill.pending, .pill.created, .pill.held { background: #fff3e0; color: var(--amber); }
+  .pill.cancelled, .pill.rejected, .pill.refunded, .pill.failed { background: #fdecea; color: var(--red); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); font-size: 14px; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .4px; }
+  .title { font-weight: 700; }
+  .sub { color: var(--muted); font-size: 13px; }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+           background: var(--ink); color: #fff; padding: 10px 18px; border-radius: 10px;
+           opacity: 0; transition: opacity .2s; pointer-events: none; max-width: 90vw; }
+  .toast.show { opacity: 1; }
+  .toast.err { background: var(--red); }
+  .center { text-align: center; }
+  .login { max-width: 380px; margin: 8vh auto; }
+  .login h2 { margin-top: 0; }
+  .empty { color: var(--muted); padding: 24px; text-align: center; }
+  code { background: #eef2ec; padding: 1px 6px; border-radius: 5px; font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <span style="font-size:20px">🌾</span>
+  <h1>KANNI Admin</h1>
+  <small id="apiLabel"></small>
+  <span class="sp"></span>
+  <small id="whoami"></small>
+  <button id="logout" class="ghost small" style="display:none">Log out</button>
+</header>
+
+<!-- LOGIN -->
+<div class="wrap" id="loginView">
+  <div class="card login">
+    <h2>Admin sign-in</h2>
+    <p class="muted">Phone OTP. In dev the code is returned by the API and filled in for you.</p>
+    <div class="field" style="margin-bottom:10px">
+      <label>Admin phone</label>
+      <input id="phone" value="+910000000000" style="width:100%" />
+    </div>
+    <div id="otpRow" style="display:none">
+      <div class="field" style="margin-bottom:10px">
+        <label>OTP code</label>
+        <input id="code" style="width:100%" placeholder="6-digit code" />
+      </div>
+    </div>
+    <div class="row">
+      <button id="sendOtp">Send OTP</button>
+      <button id="verifyOtp" style="display:none">Verify &amp; enter</button>
+    </div>
+    <p class="muted" style="margin-top:14px;font-size:13px">
+      API base: <code id="apiBase2"></code> — change with <code>?api=</code> in the URL.
+    </p>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="wrap" id="appView" style="display:none">
+  <div class="tabs">
+    <button data-tab="dashboard" class="active">Dashboard</button>
+    <button data-tab="listings">Listings <span id="badgeListings"></span></button>
+    <button data-tab="drivers">Drivers <span id="badgeDrivers"></span></button>
+    <button data-tab="orders">Orders</button>
+    <button id="refreshBtn" class="ghost" style="margin-left:auto">↻ Refresh</button>
+  </div>
+  <div id="panel"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const params = new URLSearchParams(location.search);
+const API = (params.get('api') || localStorage.getItem('kanni_api') || 'http://localhost:3333/api').replace(/\/$/, '');
+const API_ORIGIN = API.replace(/\/api\/?$/, ''); // for /uploads images
+const imageUrl = (p) => (!p ? '' : /^https?:\/\//.test(p) ? p : API_ORIGIN + p);
+localStorage.setItem('kanni_api', API);
+$('#apiBase2').textContent = API;
+$('#apiLabel').textContent = API.replace(/^https?:\/\//, '');
+
+let token = localStorage.getItem('kanni_admin_token') || '';
+let tab = 'dashboard';
+
+function toast(msg, isErr) {
+  const t = $('#toast'); t.textContent = msg; t.className = 'toast show' + (isErr ? ' err' : '');
+  clearTimeout(t._h); t._h = setTimeout(() => (t.className = 'toast'), 2600);
+}
+
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, {
+    ...opts,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: 'Bearer ' + token } : {}),
+      ...(opts.headers || {}),
+    },
+  });
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : null;
+  if (!res.ok) {
+    const msg = (data && (data.message || data.error)) || res.statusText;
+    throw new Error(Array.isArray(msg) ? msg.join(', ') : msg);
+  }
+  return data;
+}
+
+// ─── pricing preview (mirrors services/api/src/common/pricing.ts) ───
+const buyerPrice = (payout, marginPct, flatFee) =>
+  Math.round((payout * (1 + marginPct / 100) + flatFee) * 100) / 100;
+
+const inr = (n) => '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+const pill = (v) => `<span class="pill ${v || ''}">${v || '—'}</span>`;
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const shortId = (id) => (id ? id.slice(0, 8) : '');
+const produceName = (names) => {
+  if (!names) return 'Produce';
+  const en = names.en || Object.values(names)[0];
+  const local = names.ta || names.ml;
+  return local && local !== en ? `${en} · ${local}` : en;
+};
+
+// ───────────────────────── LOGIN ─────────────────────────
+$('#sendOtp').onclick = async () => {
+  const phone = $('#phone').value.trim();
+  try {
+    const r = await api('/auth/otp/request', { method: 'POST', body: JSON.stringify({ phone }) });
+    $('#otpRow').style.display = 'block';
+    $('#sendOtp').textContent = 'Resend OTP';
+    $('#verifyOtp').style.display = 'inline-block';
+    if (r && r.devCode) { $('#code').value = r.devCode; toast('Dev OTP filled in: ' + r.devCode); }
+    else toast('OTP sent');
+  } catch (e) { toast(e.message, true); }
+};
+
+$('#verifyOtp').onclick = async () => {
+  const phone = $('#phone').value.trim();
+  const code = $('#code').value.trim();
+  try {
+    const r = await api('/auth/otp/verify', { method: 'POST', body: JSON.stringify({ phone, code }) });
+    if (r.role !== 'admin') throw new Error(`This account's role is "${r.role || 'none'}", not admin.`);
+    token = r.token;
+    localStorage.setItem('kanni_admin_token', token);
+    enterApp(phone);
+  } catch (e) { toast(e.message, true); }
+};
+
+$('#logout').onclick = () => {
+  token = ''; localStorage.removeItem('kanni_admin_token');
+  $('#appView').style.display = 'none'; $('#loginView').style.display = 'block';
+  $('#logout').style.display = 'none'; $('#whoami').textContent = '';
+};
+
+function enterApp(phone) {
+  $('#loginView').style.display = 'none';
+  $('#appView').style.display = 'block';
+  $('#logout').style.display = 'inline-block';
+  if (phone) $('#whoami').textContent = phone;
+  loadAll();
+}
+
+// ───────────────────────── TABS ─────────────────────────
+document.querySelectorAll('.tabs [data-tab]').forEach((b) => {
+  b.onclick = () => {
+    tab = b.dataset.tab;
+    document.querySelectorAll('.tabs [data-tab]').forEach((x) => x.classList.toggle('active', x === b));
+    render();
+  };
+});
+$('#refreshBtn').onclick = () => loadAll();
+
+// ───────────────────────── DATA ─────────────────────────
+const state = { stats: null, listings: [], drivers: [], orders: [], settings: null, loading: true };
+
+async function loadAll() {
+  state.loading = true; render();
+  try {
+    const [stats, listings, drivers, orders, settings] = await Promise.all([
+      api('/admin/stats'), api('/admin/listings'), api('/admin/drivers'), api('/admin/orders'),
+      api('/admin/settings').catch(() => null),
+    ]);
+    state.stats = stats; state.listings = listings; state.drivers = drivers; state.orders = orders;
+    state.settings = settings;
+    $('#badgeListings').innerHTML = listings.length ? `<span class="pill warn pending">${listings.length}</span>` : '';
+    $('#badgeDrivers').innerHTML = drivers.length ? `<span class="pill warn pending">${drivers.length}</span>` : '';
+  } catch (e) {
+    toast(e.message, true);
+    if (/401|unauth/i.test(e.message)) $('#logout').onclick();
+  } finally { state.loading = false; render(); }
+}
+
+// ───────────────────────── RENDER ─────────────────────────
+function render() {
+  if (state.loading && !state.stats) { $('#panel').innerHTML = '<div class="card empty">Loading…</div>'; return; }
+  if (tab === 'dashboard') return renderDashboard();
+  if (tab === 'listings') return renderListings();
+  if (tab === 'drivers') return renderDrivers();
+  if (tab === 'orders') return renderOrders();
+}
+
+function renderDashboard() {
+  const s = state.stats || {};
+  const tile = (n, l, warn) => `<div class="tile ${warn && Number(n) > 0 ? 'warn' : ''}"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  $('#panel').innerHTML = `
+    <div class="card">
+      <div class="title" style="margin-bottom:10px">Queues</div>
+      <div class="grid">
+        ${tile(s.pending_listings ?? 0, 'Listings awaiting review', true)}
+        ${tile(s.pending_drivers ?? 0, 'Drivers awaiting verification', true)}
+        ${tile(s.active_orders ?? 0, 'Orders in flight')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="title" style="margin-bottom:10px">Marketplace</div>
+      <div class="grid">
+        ${tile(s.live_listings ?? 0, 'Live listings')}
+        ${tile(s.total_orders ?? 0, 'Total orders')}
+        ${tile(s.delivered_orders ?? 0, 'Delivered')}
+        ${tile(s.cancelled_orders ?? 0, 'Cancelled')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="title" style="margin-bottom:10px">Money (settled)</div>
+      <div class="grid">
+        ${tile(inr(s.gmv), 'GMV (non-cancelled)')}
+        ${tile(inr(s.kanni_revenue), 'KANNI revenue')}
+        ${tile(inr(s.farmer_paid), 'Paid to farmers')}
+        ${tile(inr(s.driver_paid), 'Paid to drivers')}
+      </div>
+    </div>
+    ${settingsCard()}`;
+  wireSettings();
+}
+
+function settingsCard() {
+  const st = state.settings;
+  if (!st) return '';
+  const on = !!st.auto_approve;
+  return `<div class="card">
+    <div class="title" style="margin-bottom:6px">Listing review</div>
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <div class="sub" style="flex:1">
+        <b>Auto-approve listings</b> — when on, new farmer listings skip this queue and go
+        live immediately with the default margin/fee below.
+      </div>
+      <button id="autoToggle" class="${on ? '' : 'ghost'}">${on ? 'ON' : 'OFF'}</button>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div class="field"><label>Default margin %</label>
+        <input id="setMargin" type="number" min="0" step="0.5" value="${Number(st.default_margin_pct)}" /></div>
+      <div class="field"><label>Default flat fee ₹</label>
+        <input id="setFee" type="number" min="0" step="0.5" value="${Number(st.default_flat_fee)}" /></div>
+      <div class="sp" style="flex:1"></div>
+      <button id="setSave" class="ghost">Save defaults</button>
+    </div>
+  </div>`;
+}
+
+function wireSettings() {
+  const t = $('#autoToggle');
+  if (!t) return;
+  t.onclick = async () => {
+    try {
+      state.settings = await api('/admin/settings', {
+        method: 'POST', body: JSON.stringify({ autoApprove: !state.settings.auto_approve }),
+      });
+      toast('Auto-approve ' + (state.settings.auto_approve ? 'enabled' : 'disabled'));
+      renderDashboard();
+    } catch (e) { toast(e.message, true); }
+  };
+  $('#setSave').onclick = async () => {
+    try {
+      state.settings = await api('/admin/settings', {
+        method: 'POST',
+        body: JSON.stringify({
+          defaultMarginPct: Number($('#setMargin').value) || 0,
+          defaultFlatFee: Number($('#setFee').value) || 0,
+        }),
+      });
+      toast('Defaults saved');
+    } catch (e) { toast(e.message, true); }
+  };
+}
+
+function renderListings() {
+  if (!state.listings.length) { $('#panel').innerHTML = '<div class="card empty">No listings awaiting review. 🎉</div>'; return; }
+  $('#panel').innerHTML = state.listings.map((l) => {
+    const payout = Number(l.payout_price);
+    return `<div class="card" data-listing="${l.id}">
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <div class="title">${esc(produceName(l.produce_names))} <span class="pill">${esc(l.grade || '?')}</span></div>
+          <div class="sub">${esc(l.seller_name || 'Unknown seller')} · ${Number(l.qty)} ${esc(l.unit)} · MOQ ${Number(l.moq)} · payout ${inr(payout)}/${esc(l.unit)}</div>
+        </div>
+        <div class="sub">#${shortId(l.id)}</div>
+      </div>
+      ${(l.photos && l.photos.length) ? `<div class="row" style="gap:6px;margin-top:10px">
+        ${l.photos.map((p) => `<img src="${imageUrl(p)}" style="width:64px;height:64px;border-radius:8px;object-fit:cover;border:1px solid var(--line)" />`).join('')}
+      </div>` : ''}
+      <div class="row" style="margin-top:12px">
+        <div class="field"><label>Grade</label>
+          <select class="f-grade">
+            ${['A', 'B', 'C'].map((g) => `<option ${g === (l.grade || 'A') ? 'selected' : ''}>${g}</option>`).join('')}
+          </select></div>
+        <div class="field"><label>Margin %</label><input class="f-margin" type="number" min="0" step="0.5" value="10" /></div>
+        <div class="field"><label>Flat fee ₹/unit</label><input class="f-fee" type="number" min="0" step="0.5" value="0" /></div>
+        <div class="field"><label>Buyer price preview</label>
+          <div class="title f-preview" style="padding:8px 0">${inr(buyerPrice(payout, 10, 0))}/${esc(l.unit)}</div></div>
+        <div class="sp" style="flex:1"></div>
+        <button class="f-approve">Approve &amp; go live</button>
+        <button class="ghost f-reject">Reject</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  state.listings.forEach((l) => {
+    const card = $(`[data-listing="${l.id}"]`);
+    const payout = Number(l.payout_price);
+    const upd = () => {
+      const m = Number(card.querySelector('.f-margin').value) || 0;
+      const f = Number(card.querySelector('.f-fee').value) || 0;
+      card.querySelector('.f-preview').textContent = inr(buyerPrice(payout, m, f)) + '/' + l.unit;
+    };
+    card.querySelector('.f-margin').oninput = upd;
+    card.querySelector('.f-fee').oninput = upd;
+    card.querySelector('.f-approve').onclick = async (e) => {
+      e.target.disabled = true;
+      try {
+        await api(`/admin/listings/${l.id}/review`, { method: 'POST', body: JSON.stringify({
+          action: 'approve',
+          grade: card.querySelector('.f-grade').value,
+          marginPct: Number(card.querySelector('.f-margin').value) || 0,
+          flatFee: Number(card.querySelector('.f-fee').value) || 0,
+        }) });
+        toast('Listing approved & live'); loadAll();
+      } catch (err) { toast(err.message, true); e.target.disabled = false; }
+    };
+    card.querySelector('.f-reject').onclick = async () => {
+      const reason = prompt('Reject reason?', 'Quality / pricing not acceptable');
+      if (reason === null) return;
+      try {
+        await api(`/admin/listings/${l.id}/review`, { method: 'POST', body: JSON.stringify({ action: 'reject', rejectReason: reason }) });
+        toast('Listing rejected'); loadAll();
+      } catch (err) { toast(err.message, true); }
+    };
+  });
+}
+
+function renderDrivers() {
+  if (!state.drivers.length) { $('#panel').innerHTML = '<div class="card empty">No drivers awaiting verification. 🎉</div>'; return; }
+  $('#panel').innerHTML = `<div class="card"><table>
+    <thead><tr><th>Phone</th><th>Vehicle</th><th>Capacity</th><th></th></tr></thead>
+    <tbody>${state.drivers.map((d) => `<tr data-driver="${d.user_id}">
+      <td class="title">${esc(d.phone)}</td>
+      <td>${esc(d.vehicle_type || '—')}</td>
+      <td>${Number(d.capacity_kg)} kg</td>
+      <td class="center">
+        <button class="small d-ok">Verify</button>
+        <button class="small ghost d-no">Reject</button>
+      </td></tr>`).join('')}</tbody></table></div>`;
+
+  state.drivers.forEach((d) => {
+    const row = $(`[data-driver="${d.user_id}"]`);
+    const act = async (approve) => {
+      try {
+        await api(`/admin/drivers/${d.user_id}/verify`, { method: 'POST', body: JSON.stringify({ approve }) });
+        toast(approve ? 'Driver verified' : 'Driver rejected'); loadAll();
+      } catch (err) { toast(err.message, true); }
+    };
+    row.querySelector('.d-ok').onclick = () => act(true);
+    row.querySelector('.d-no').onclick = () => act(false);
+  });
+}
+
+function renderOrders() {
+  if (!state.orders.length) { $('#panel').innerHTML = '<div class="card empty">No orders yet.</div>'; return; }
+  $('#panel').innerHTML = `<div class="card"><table>
+    <thead><tr><th>Order</th><th>Buyer</th><th>Total</th><th>Status</th><th>Payment</th><th>Settlement</th><th></th></tr></thead>
+    <tbody>${state.orders.map((o) => `<tr data-order="${o.id}">
+      <td><span class="title">#${shortId(o.id)}</span><div class="sub">${new Date(o.created_at).toLocaleString('en-IN')}</div></td>
+      <td>${esc(o.buyer_name || '—')}</td>
+      <td>${inr(o.total)}</td>
+      <td>${pill(o.status)}</td>
+      <td>${pill(o.payment_status)}</td>
+      <td>${pill(o.settlement_status)}${o.kanni_margin ? `<div class="sub">margin ${inr(o.kanni_margin)}</div>` : ''}</td>
+      <td class="center">${o.refundable ? '<button class="small danger o-refund">Refund</button>' : ''}</td>
+    </tr>`).join('')}</tbody></table></div>`;
+
+  state.orders.filter((o) => o.refundable).forEach((o) => {
+    $(`[data-order="${o.id}"] .o-refund`).onclick = async (e) => {
+      const reason = prompt(`Refund order #${shortId(o.id)} (${inr(o.total)})?\nReason:`, 'Refunded by admin');
+      if (reason === null) return;
+      e.target.disabled = true;
+      try {
+        const r = await api(`/admin/orders/${o.id}/refund`, { method: 'POST', body: JSON.stringify({ reason }) });
+        toast(r.post_delivery ? 'Post-delivery refund issued' : 'Order cancelled & refunded'); loadAll();
+      } catch (err) { toast(err.message, true); e.target.disabled = false; }
+    };
+  });
+}
+
+// ───────────────────────── BOOT ─────────────────────────
+if (token) enterApp();
+</script>
+</body>
+</html>

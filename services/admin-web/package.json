@@ -1,0 +1,10 @@
+{
+  "name": "kanni-admin-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "KANNI admin console — zero-build static SPA over the KANNI API.",
+  "type": "module",
+  "scripts": {
+    "start": "node serve.mjs"
+  }
+}

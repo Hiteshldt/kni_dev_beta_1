@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "KANNI",
+    "slug": "kanni",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "kanni",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kanni.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "KANNI uses your location to show nearby produce, set farm/pickup points, and match delivery jobs."
+      }
+    },
+    "android": {
+      "package": "com.kanni.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "apiUrl": ""
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "KANNI uses your location to show nearby produce, set farm/pickup points, and match delivery jobs."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "KANNI needs photo access so you can add pictures of your produce.",
+          "cameraPermission": "KANNI needs camera access so you can photograph your produce."
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+*.log
+
+# Self-contained dev Postgres cluster (do not commit)
+.devdb/
+
+# OS
+.DS_Store
+
+# Uploaded images (served at runtime; not source)
+services/api/uploads/
+
+# Expo / React Native
+.expo/
+apps/mobile/.expo/
+*.tsbuildinfo
+
+# Local Claude Code settings (machine-specific; may contain secrets)
+.claude/

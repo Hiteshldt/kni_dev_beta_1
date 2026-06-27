@@ -1,0 +1,47 @@
+# Render Blueprint — deploys the KANNI API (Node web service) and the admin
+# console (static site). The database is Neon (set DATABASE_URL in the dashboard).
+#
+# To use: push this repo to GitHub, then in Render → "New +" → "Blueprint" and
+# point it at the repo. Render reads this file and creates both services.
+# After the first deploy, set DATABASE_URL (Neon pooler connection string) on the
+# API service. See DEPLOY.md for the full runbook.
+
+services:
+  # ── KANNI API (NestJS) ──────────────────────────────────────────────────────
+  - type: web
+    name: kanni-api
+    runtime: node
+    rootDir: services/api
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/catalog
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Neon connection string (use the *pooler* host). Set in the dashboard —
+      # never commit it. Must include ?sslmode=require.
+      - key: DATABASE_URL
+        sync: false
+      - key: PGSSL
+        value: "true"
+      # A strong secret is generated once and kept stable across deploys.
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 30d
+      # Dev OTP returns the code in the API response (no SMS provider needed yet).
+      # Switch to msg91 once a wallet/DLT is set up (see DEPLOY.md).
+      - key: OTP_PROVIDER
+        value: dev
+      # Mock payments until live Razorpay keys are added.
+      - key: PAYMENT_PROVIDER
+        value: mock
+
+  # ── Admin console (static SPA) ──────────────────────────────────────────────
+  - type: web
+    name: kanni-admin
+    runtime: static
+    rootDir: services/admin-web
+    buildCommand: "echo no build step"
+    staticPublishPath: .
