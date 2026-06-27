@@ -52,7 +52,39 @@ export class AdminService {
          (SELECT COALESCE(sum(total),0) FROM orders WHERE status <> 'cancelled') AS gmv,
          (SELECT COALESCE(sum(kanni_margin),0) FROM settlements WHERE status = 'settled') AS kanni_revenue,
          (SELECT COALESCE(sum(farmer_payout),0) FROM settlements WHERE status = 'settled') AS farmer_paid,
-         (SELECT COALESCE(sum(driver_earning),0) FROM settlements WHERE status = 'settled') AS driver_paid`,
+         (SELECT COALESCE(sum(driver_earning),0) FROM settlements WHERE status = 'settled') AS driver_paid,
+         (SELECT count(*) FROM users)::int                                       AS total_users,
+         (SELECT count(*) FROM users WHERE role = 'seller')::int                 AS sellers,
+         (SELECT count(*) FROM users WHERE role = 'buyer')::int                  AS buyers,
+         (SELECT count(*) FROM users WHERE role = 'driver')::int                 AS drivers,
+         (SELECT count(*) FROM users WHERE blocked)::int                         AS blocked_users`,
+    );
+  }
+
+  /** All users with role-specific detail + activity counts (admin monitoring). */
+  async users() {
+    return this.db.query(
+      `SELECT u.id, u.role, u.phone, u.email, u.blocked, u.created_at,
+              COALESCE(sp.name, bp.business_name) AS name,
+              dp.vehicle_type, dp.verify_status AS driver_status,
+              (SELECT count(*)::int FROM orders o   WHERE o.buyer_id  = u.id) AS orders_count,
+              (SELECT count(*)::int FROM listings l WHERE l.seller_id = u.id) AS listings_count
+         FROM users u
+         LEFT JOIN seller_profiles sp ON sp.user_id = u.id
+         LEFT JOIN buyer_profiles  bp ON bp.user_id = u.id
+         LEFT JOIN driver_profiles dp ON dp.user_id = u.id
+        ORDER BY u.created_at DESC`,
+    );
+  }
+
+  /** Block / unblock a user. Admins cannot be blocked (avoid lock-out). */
+  async setBlocked(userId: string, blocked: boolean) {
+    const u = await this.db.one<{ role: string }>('SELECT role FROM users WHERE id = $1', [userId]);
+    if (!u) throw new NotFoundException('User not found');
+    if (u.role === 'admin') throw new BadRequestException('Admin accounts cannot be blocked');
+    return this.db.one(
+      'UPDATE users SET blocked = $2 WHERE id = $1 RETURNING id, blocked',
+      [userId, blocked],
     );
   }
 

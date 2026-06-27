@@ -29,6 +29,19 @@ export class AdminController {
     return this.admin.stats();
   }
 
+  @Get('users')
+  users() {
+    return this.admin.users();
+  }
+
+  @Post('users/:id/block')
+  setBlocked(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: { blocked?: boolean },
+  ) {
+    return this.admin.setBlocked(id, body?.blocked !== false);
+  }
+
   @Get('orders')
   recentOrders() {
     return this.admin.recentOrders();

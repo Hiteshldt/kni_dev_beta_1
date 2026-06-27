@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { DbService } from '../db/db.service';
 import { Role } from '../common/roles';
@@ -48,13 +48,14 @@ export class AuthService {
       throw new BadRequestException('Incorrect code');
     }
 
-    const user = await this.db.one<{ id: string; role: Role | null }>(
+    const user = await this.db.one<{ id: string; role: Role | null; blocked: boolean }>(
       `INSERT INTO users (phone) VALUES ($1)
        ON CONFLICT (phone) DO UPDATE SET phone = EXCLUDED.phone
-       RETURNING id, role`,
+       RETURNING id, role, blocked`,
       [phone],
     );
     if (!user) throw new BadRequestException('Could not create or fetch the account');
+    if (user.blocked) throw new ForbiddenException('This account has been suspended');
     await this.db.query('DELETE FROM otp_codes WHERE phone = $1', [phone]);
 
     return {
@@ -66,13 +67,14 @@ export class AuthService {
 
   /** Email + password login for admin/staff (provisioned via seed, not signup). */
   async adminLogin(email: string, password: string) {
-    const user = await this.db.one<{ id: string; role: Role | null; password_hash: string | null }>(
-      'SELECT id, role, password_hash FROM users WHERE lower(email) = lower($1)',
+    const user = await this.db.one<{ id: string; role: Role | null; password_hash: string | null; blocked: boolean }>(
+      'SELECT id, role, password_hash, blocked FROM users WHERE lower(email) = lower($1)',
       [email],
     );
     if (!user || user.role !== 'admin' || !verifyPassword(password, user.password_hash)) {
       throw new UnauthorizedException('Invalid email or password');
     }
+    if (user.blocked) throw new ForbiddenException('This account has been suspended');
     return { token: await this.signToken(user.id, user.role), role: user.role, email };
   }
 

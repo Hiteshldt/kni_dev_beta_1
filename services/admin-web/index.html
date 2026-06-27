@@ -19,7 +19,10 @@
   body{margin:0;background:var(--bg);color:var(--ink);
     font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Inter,sans-serif;
     -webkit-font-smoothing:antialiased;letter-spacing:-.05px}
-  svg{display:block}
+  svg{display:block;flex:0 0 auto}
+  .nav-item>svg{width:18px;height:18px} .kpi .ic svg{width:18px;height:18px}
+  .searchbox svg{width:16px;height:16px} .empty .big svg{width:22px;height:22px}
+  .avatar{flex:0 0 auto}
   button{font:inherit;cursor:pointer;border:0;border-radius:9px;padding:8px 14px;font-weight:600;
     background:var(--accent);color:#fff;transition:filter .15s,background .15s,box-shadow .15s;white-space:nowrap}
   button:hover{filter:brightness(1.04)} button:active{filter:brightness(.97)}
@@ -221,7 +224,7 @@ $('#apiSave').onclick = ()=>{ const v=$('#apiBaseInput').value.trim().replace(/\
 let token = localStorage.getItem('kanni_admin_token') || '';
 let adminEmail = localStorage.getItem('kanni_admin_email') || '';
 let tab = 'dashboard';
-const q = { listings:'', drivers:'', orders:'', settlements:'' };
+const q = { listings:'', drivers:'', orders:'', settlements:'', users:'', usersRole:'' };
 
 function toast(msg,isErr){ const t=$('#toast'); t.innerHTML=msg; t.className='toast show'+(isErr?' err':''); clearTimeout(t._h); t._h=setTimeout(()=>t.className='toast',2600); }
 
@@ -266,10 +269,11 @@ function enterApp(){
 const NAV=[
   {sec:'Overview', items:[{id:'dashboard',label:'Dashboard',icon:'grid'}]},
   {sec:'Operations', items:[{id:'listings',label:'Listings',icon:'tag',badge:'listings'},{id:'drivers',label:'Drivers',icon:'truck',badge:'drivers'},{id:'orders',label:'Orders',icon:'box'}]},
+  {sec:'People', items:[{id:'users',label:'Users',icon:'users'}]},
   {sec:'Finance', items:[{id:'settlements',label:'Settlements',icon:'chart'}]},
   {sec:'System', items:[{id:'settings',label:'Settings',icon:'gear'}]},
 ];
-const TITLES={dashboard:['Dashboard','Live overview of the marketplace'],listings:['Listings','Review &amp; price farmer submissions'],drivers:['Drivers','Verify onboarding documents'],orders:['Orders','Track and resolve orders'],settlements:['Settlements','Money settled to farmers, drivers &amp; KANNI'],settings:['Settings','Platform configuration']};
+const TITLES={dashboard:['Dashboard','Live overview of the marketplace'],listings:['Listings','Review &amp; price farmer submissions'],drivers:['Drivers','Verify onboarding documents'],orders:['Orders','Track and resolve orders'],users:['Users','Monitor &amp; manage everyone on KANNI'],settlements:['Settlements','Money settled to farmers, drivers &amp; KANNI'],settings:['Settings','Platform configuration']};
 function buildNav(){
   $('#nav').innerHTML = NAV.map(g=>`<div class="nav-sec">${g.sec}</div>`+g.items.map(it=>
     `<div class="nav-item ${it.id===tab?'active':''}" data-tab="${it.id}">${ic(it.icon)} <span>${it.label}</span>${it.badge?`<span class="nav-badge" data-badge="${it.badge}" style="display:none"></span>`:''}</div>`).join('')).join('');
@@ -281,13 +285,13 @@ function buildNav(){
 $('#refreshBtn').onclick=()=>loadAll();
 
 /* ---------- Data ---------- */
-const state={stats:null,listings:[],drivers:[],orders:[],settings:null,loading:true};
+const state={stats:null,listings:[],drivers:[],orders:[],users:[],settings:null,loading:true};
 async function loadAll(){
   state.loading=true; render();
   try{
-    const [stats,listings,drivers,orders,settings]=await Promise.all([
-      api('/admin/stats'),api('/admin/listings'),api('/admin/drivers'),api('/admin/orders'),api('/admin/settings').catch(()=>null)]);
-    Object.assign(state,{stats,listings,drivers,orders,settings});
+    const [stats,listings,drivers,orders,users,settings]=await Promise.all([
+      api('/admin/stats'),api('/admin/listings'),api('/admin/drivers'),api('/admin/orders'),api('/admin/users').catch(()=>[]),api('/admin/settings').catch(()=>null)]);
+    Object.assign(state,{stats,listings,drivers,orders,users,settings});
     setBadge('listings',listings.length); setBadge('drivers',drivers.length);
   }catch(e){ toast(e.message,true); if(/401|unauth/i.test(e.message)) $('#logout').onclick(); }
   finally{ state.loading=false; render(); }
@@ -297,7 +301,7 @@ function setBadge(key,n){ const el=document.querySelector(`[data-badge="${key}"]
 /* ---------- Render ---------- */
 function render(){
   if(state.loading && !state.stats){ $('#panel').innerHTML=`<div class="grid k4">${'<div class="kpi"><div class="ic"></div><div class="skel" style="width:60%"></div><div class="skel" style="width:80%;margin-top:10px"></div></div>'.repeat(4)}</div>`; return; }
-  ({dashboard:dash,listings:listingsView,drivers:driversView,orders:ordersView,settlements:settleView,settings:settingsView}[tab]||dash)();
+  ({dashboard:dash,listings:listingsView,drivers:driversView,orders:ordersView,users:usersView,settlements:settleView,settings:settingsView}[tab]||dash)();
 }
 function kpi(icon,n,l,cls){ return `<div class="kpi ${cls||''}"><div class="ic">${ic(icon,18)}</div><div class="n">${n}</div><div class="l">${l}</div></div>`; }
 function emptyState(msg){ return `<div class="card"><div class="empty"><div class="big">${ic('grid',22)}</div>${msg}</div></div>`; }
@@ -321,6 +325,13 @@ function dash(){
       ${kpi('chart',s.delivered_orders??0,'Delivered')}
       ${kpi('refresh',s.cancelled_orders??0,'Cancelled')}
     </div>
+    <div class="sec-title">People</div>
+    <div class="grid k4">
+      ${kpi('users',s.total_users??0,'Total users')}
+      ${kpi('tag',s.sellers??0,'Farmers')}
+      ${kpi('box',s.buyers??0,'Buyers')}
+      ${kpi('truck',s.drivers??0,'Drivers')}
+    </div>
     <div class="sec-title">Finance (settled)</div>
     <div class="grid k4">
       ${kpi('chart',inr(s.gmv),'GMV')}
@@ -328,6 +339,52 @@ function dash(){
       ${kpi('users',inr(s.farmer_paid),'Paid to farmers')}
       ${kpi('truck',inr(s.driver_paid),'Paid to drivers')}
     </div>`;
+}
+
+function usersView(){
+  const el=$('#panel');
+  const roleSel=`<select id="roleFilter" style="width:148px;flex:0 0 auto">
+    <option value="">All roles</option><option value="seller">Farmers</option><option value="buyer">Buyers</option><option value="driver">Drivers</option><option value="admin">Admins</option></select>`;
+  el.innerHTML=`<div class="toolbar"><div class="searchbox">${ic('search',16)}<input id="search" placeholder="Search name, phone or email…" value="${esc(q.users)}"/></div>${roleSel}<span class="count" id="count"></span></div>
+    <div class="card"><div class="tbl-wrap"><table><thead><tr><th>User</th><th>Role</th><th>Contact</th><th>Activity</th><th>Status</th><th>Joined</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div>`;
+  const fill=()=>{
+    let rows=filt(state.users,q.users,['name','phone','email']);
+    if(q.usersRole) rows=rows.filter(u=>u.role===q.usersRole);
+    $('#count').textContent=`${rows.length} of ${state.users.length}`;
+    $('#rows').innerHTML = rows.length? rows.map(userRow).join('') : `<tr><td colspan="7"><div class="empty">No matching users.</div></td></tr>`;
+    rows.forEach(wireUser);
+  };
+  $('#search').oninput=e=>{q.users=e.target.value;fill();};
+  $('#roleFilter').value=q.usersRole; $('#roleFilter').onchange=e=>{q.usersRole=e.target.value;fill();};
+  fill();
+}
+const ROLE_LABEL={seller:'Farmer',buyer:'Buyer',driver:'Driver',admin:'Admin'};
+function userRow(u){
+  const nm=u.name||'—', init=(nm!=='—'?nm[0]:(u.role||'?')[0]).toUpperCase();
+  const activity = u.role==='seller'?`${u.listings_count} listing${u.listings_count==1?'':'s'}`
+    : u.role==='buyer'?`${u.orders_count} order${u.orders_count==1?'':'s'}`
+    : u.role==='driver'?(u.driver_status?`vehicle ${esc(u.vehicle_type||'')}`:'—') : '—';
+  const status = u.blocked?'<span class="pill red">Blocked</span>'
+    : u.role==='driver'&&u.driver_status?pill(u.driver_status)
+    : '<span class="pill green">Active</span>';
+  return `<tr data-user="${u.id}">
+    <td><div class="flex center" style="gap:10px"><span class="avatar" style="width:30px;height:30px;font-size:12px">${esc(init)}</span><div><div style="font-weight:600">${esc(nm)}</div><div class="sub-c">#${sid(u.id)}</div></div></div></td>
+    <td><span class="pill grey">${esc(ROLE_LABEL[u.role]||u.role||'—')}</span></td>
+    <td>${esc(u.email||u.phone||'—')}</td>
+    <td class="sub-c" style="text-transform:capitalize">${activity}</td>
+    <td>${status}</td>
+    <td class="sub-c">${new Date(u.created_at).toLocaleDateString('en-IN')}</td>
+    <td style="text-align:right">${u.role!=='admin'?`<button class="sm ${u.blocked?'ghost':'danger'} u-block">${u.blocked?'Unblock':'Block'}</button>`:''}</td></tr>`;
+}
+function wireUser(u){
+  const btn=document.querySelector(`[data-user="${u.id}"] .u-block`); if(!btn)return;
+  btn.onclick=async()=>{
+    const blocking=!u.blocked;
+    if(blocking && !confirm(`Block ${u.name||u.phone||'this user'}? They won't be able to sign in.`))return;
+    btn.disabled=true;
+    try{ await api(`/admin/users/${u.id}/block`,{method:'POST',body:JSON.stringify({blocked:blocking})}); toast(blocking?'User blocked':'User unblocked'); loadAll(); }
+    catch(e){ toast(e.message,true); btn.disabled=false; }
+  };
 }
 
 function listingsView(){
