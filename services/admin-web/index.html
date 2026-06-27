@@ -122,7 +122,20 @@
 <script>
 const $ = (s) => document.querySelector(s);
 const params = new URLSearchParams(location.search);
-const API = (params.get('api') || localStorage.getItem('kanni_api') || 'http://localhost:3333/api').replace(/\/$/, '');
+
+const isLocal = (h) => /^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(h || '');
+// Default API: localhost in dev; on a deployed host derive the sibling API
+// origin (kanni-admin.onrender.com → kanni-api.onrender.com).
+function defaultApi() {
+  if (isLocal(location.hostname)) return 'http://localhost:3333/api';
+  return location.origin.replace(/admin/i, 'api').replace(/\/$/, '') + '/api';
+}
+// A localhost value saved by an earlier visit is useless once we're deployed —
+// discard it so the console self-heals instead of failing CORS forever.
+let stored = localStorage.getItem('kanni_api');
+if (stored && /localhost|127\.0\.0\.1/.test(stored) && !isLocal(location.hostname)) stored = null;
+
+const API = (params.get('api') || stored || defaultApi()).replace(/\/$/, '');
 const API_ORIGIN = API.replace(/\/api\/?$/, ''); // for /uploads images
 const imageUrl = (p) => (!p ? '' : /^https?:\/\//.test(p) ? p : API_ORIGIN + p);
 localStorage.setItem('kanni_api', API);
