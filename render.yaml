@@ -13,7 +13,9 @@ services:
     runtime: node
     rootDir: services/api
     plan: free
-    buildCommand: npm install && npm run build
+    # --include=dev forces TypeScript & friends to install even though
+    # NODE_ENV=production (otherwise `tsc` is missing and the build fails).
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm run start
     healthCheckPath: /api/catalog
     envVars:
