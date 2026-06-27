@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { DbService } from '../db/db.service';
 import { Role } from '../common/roles';
+import { verifyPassword } from '../common/password';
 
 @Injectable()
 export class AuthService {
@@ -61,6 +62,18 @@ export class AuthService {
       role: user.role,
       isNewUser: user.role === null,
     };
+  }
+
+  /** Email + password login for admin/staff (provisioned via seed, not signup). */
+  async adminLogin(email: string, password: string) {
+    const user = await this.db.one<{ id: string; role: Role | null; password_hash: string | null }>(
+      'SELECT id, role, password_hash FROM users WHERE lower(email) = lower($1)',
+      [email],
+    );
+    if (!user || user.role !== 'admin' || !verifyPassword(password, user.password_hash)) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+    return { token: await this.signToken(user.id, user.role), role: user.role, email };
   }
 
   /** Set the role on first signup (cannot be changed once set). */

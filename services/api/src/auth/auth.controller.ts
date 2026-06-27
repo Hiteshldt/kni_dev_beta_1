@@ -1,6 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RequestOtpDto, VerifyOtpDto, SetRoleDto } from './auth.dto';
+import { RequestOtpDto, VerifyOtpDto, SetRoleDto, AdminLoginDto } from './auth.dto';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { CurrentUser } from '../common/current-user.decorator';
 import { AuthUser } from '../common/roles';
@@ -8,6 +8,11 @@ import { AuthUser } from '../common/roles';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
+
+  @Post('admin/login')
+  adminLogin(@Body() dto: AdminLoginDto) {
+    return this.auth.adminLogin(dto.email, dto.password);
+  }
 
   @Post('otp/request')
   requestOtp(@Body() dto: RequestOtpDto) {

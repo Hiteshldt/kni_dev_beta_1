@@ -1,4 +1,13 @@
-import { IsIn, IsString, Matches, Length } from 'class-validator';
+import { IsIn, IsString, Matches, Length, IsEmail, MinLength } from 'class-validator';
+
+export class AdminLoginDto {
+  @IsEmail()
+  email!: string;
+
+  @IsString()
+  @MinLength(6)
+  password!: string;
+}
 
 export class RequestOtpDto {
   // E.164-ish; keep permissive for dev.

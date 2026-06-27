@@ -5,6 +5,7 @@
 import { Client } from 'pg';
 import { config } from 'dotenv';
 import { pgSsl } from '../src/common/pg';
+import { hashPassword } from '../src/common/password';
 
 config();
 
@@ -56,14 +57,18 @@ async function main() {
   const { rows } = await client.query('SELECT count(*)::int AS n FROM produce_catalog');
   console.log(`Seeded produce_catalog: ${rows[0].n} items.`);
 
-  // Bootstrap an internal admin account (admin role can't be set via the API).
+  // Bootstrap an internal admin account. Admins log in with email + password
+  // (the apps use phone OTP). Override via ADMIN_EMAIL / ADMIN_PASSWORD env.
   const adminPhone = process.env.ADMIN_PHONE ?? '+910000000000';
+  const adminEmail = process.env.ADMIN_EMAIL ?? 'admin@kanni.com';
+  const adminPassword = process.env.ADMIN_PASSWORD ?? 'kanni-admin';
   await client.query(
-    `INSERT INTO users (phone, role) VALUES ($1, 'admin')
-     ON CONFLICT (phone) DO UPDATE SET role = 'admin'`,
-    [adminPhone],
+    `INSERT INTO users (phone, role, email, password_hash) VALUES ($1, 'admin', $2, $3)
+     ON CONFLICT (phone) DO UPDATE SET
+       role = 'admin', email = EXCLUDED.email, password_hash = EXCLUDED.password_hash`,
+    [adminPhone, adminEmail, hashPassword(adminPassword)],
   );
-  console.log(`Admin account ready: ${adminPhone} (login via OTP).`);
+  console.log(`Admin ready: ${adminEmail} (password ${process.env.ADMIN_PASSWORD ? '[from env]' : `"${adminPassword}"`}).`);
 
   await client.end();
 }
