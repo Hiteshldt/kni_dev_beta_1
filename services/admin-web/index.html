@@ -94,9 +94,14 @@
       <button id="sendOtp">Send OTP</button>
       <button id="verifyOtp" style="display:none">Verify &amp; enter</button>
     </div>
-    <p class="muted" style="margin-top:14px;font-size:13px">
-      API base: <code id="apiBase2"></code> — change with <code>?api=</code> in the URL.
-    </p>
+    <div class="field" style="margin-top:16px">
+      <label>API base URL</label>
+      <div class="row" style="gap:6px">
+        <input id="apiBaseInput" style="flex:1" placeholder="https://kanni-api.onrender.com/api" />
+        <button id="apiSave" class="ghost">Set</button>
+      </div>
+      <p class="muted" style="font-size:12px;margin-top:4px">Point this at your deployed API, then sign in.</p>
+    </div>
   </div>
 </div>
 
@@ -121,8 +126,15 @@ const API = (params.get('api') || localStorage.getItem('kanni_api') || 'http://l
 const API_ORIGIN = API.replace(/\/api\/?$/, ''); // for /uploads images
 const imageUrl = (p) => (!p ? '' : /^https?:\/\//.test(p) ? p : API_ORIGIN + p);
 localStorage.setItem('kanni_api', API);
-$('#apiBase2').textContent = API;
+$('#apiBaseInput').value = API;
 $('#apiLabel').textContent = API.replace(/^https?:\/\//, '');
+// Let the user point the console at the deployed API right from the login screen.
+$('#apiSave').onclick = () => {
+  const v = $('#apiBaseInput').value.trim().replace(/\/$/, '');
+  if (!v) return;
+  localStorage.setItem('kanni_api', v);
+  location.href = location.pathname; // reload without a stale ?api= override
+};
 
 let token = localStorage.getItem('kanni_admin_token') || '';
 let tab = 'dashboard';
