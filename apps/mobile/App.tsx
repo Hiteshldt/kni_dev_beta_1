@@ -19,6 +19,7 @@ import BuyerHome from './src/screens/buyer/BuyerHome';
 import Browse from './src/screens/buyer/Browse';
 import ListingDetail from './src/screens/buyer/ListingDetail';
 import MyOrders from './src/screens/buyer/MyOrders';
+import RateOrder from './src/screens/buyer/RateOrder';
 import BuyerProfile from './src/screens/buyer/BuyerProfile';
 
 import DriverHome from './src/screens/driver/DriverHome';
@@ -37,6 +38,7 @@ const SCREENS: Screens = {
   'buyer.browse': Browse,
   'buyer.detail': ListingDetail,
   'buyer.orders': MyOrders,
+  'buyer.rate': RateOrder,
   'buyer.profile': BuyerProfile,
 
   'driver.home': DriverHome,

@@ -26,10 +26,10 @@ export class RatingsService {
     if (dup) throw new ConflictException(`You have already rated the ${dto.target} for this order`);
 
     return this.db.one(
-      `INSERT INTO ratings (from_user, to_user, score, context, order_id)
-       VALUES ($1,$2,$3,$4,$5)
+      `INSERT INTO ratings (from_user, to_user, score, context, order_id, comment)
+       VALUES ($1,$2,$3,$4,$5,$6)
        RETURNING id, to_user, score, context, order_id, created_at`,
-      [buyerId, toUser, dto.score, dto.target, dto.orderId],
+      [buyerId, toUser, dto.score, dto.target, dto.orderId, dto.comment ?? null],
     );
   }
 

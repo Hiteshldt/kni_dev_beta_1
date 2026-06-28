@@ -80,6 +80,10 @@ export default function MyOrders() {
                   <View style={{ marginTop: S.md }}>
                     <Btn title={tr(lang, 'cancel')} variant="danger" onPress={() => cancel(o.id)} />
                   </View>
+                ) : o.status === 'delivered' ? (
+                  <View style={{ marginTop: S.md }}>
+                    <Btn title={`★ ${tr(lang, 'rate')}`} variant="ghost" onPress={() => nav.navigate('buyer.rate', { orderId: o.id, hasDriver: true })} />
+                  </View>
                 ) : null}
               </Card>
             );

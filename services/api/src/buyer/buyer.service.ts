@@ -80,18 +80,41 @@ export class BuyerService {
   }
 
   async listingDetail(id: string, lang: string) {
-    const r = await this.db.one(
+    const r = await this.db.one<any>(
       `SELECT l.*, c.names AS produce_names, c.names->>$2 AS produce_name, c.category,
-              p.buyer_price, p.margin_pct, p.flat_fee, s.name AS seller_name
+              p.buyer_price, p.margin_pct, p.flat_fee,
+              s.name AS seller_name, s.photo_url AS seller_photo, l.seller_id,
+              u.phone AS seller_phone
          FROM listings l
          JOIN produce_catalog c ON c.id = l.catalog_id
          JOIN pricing p ON p.listing_id = l.id
          LEFT JOIN seller_profiles s ON s.user_id = l.seller_id
+         LEFT JOIN users u ON u.id = l.seller_id
         WHERE l.id = $1 AND l.status = 'live'`,
       [id, lang],
     );
     if (!r) throw new NotFoundException('Listing not available');
-    return r;
+
+    // Seller reputation + recent written reviews for the detail screen.
+    const rep = await this.db.one<{ avg_stars: string; ratings_count: number; delivered: number }>(
+      `SELECT COALESCE(ROUND(AVG(score)::numeric, 1), 0) AS avg_stars,
+              COUNT(*)::int AS ratings_count,
+              (SELECT COUNT(*)::int FROM shipments sh JOIN orders o ON o.id = sh.order_id
+                 WHERE sh.status = 'delivered'
+                   AND o.id IN (SELECT order_id FROM order_items oi JOIN listings ll ON ll.id = oi.listing_id WHERE ll.seller_id = $1)
+              ) AS delivered
+         FROM ratings WHERE to_user = $1 AND context = 'seller'`,
+      [r.seller_id],
+    );
+    const reviews = await this.db.query(
+      `SELECT rt.score, rt.comment, rt.created_at, bp.business_name AS reviewer
+         FROM ratings rt
+         LEFT JOIN buyer_profiles bp ON bp.user_id = rt.from_user
+        WHERE rt.to_user = $1 AND rt.context = 'seller' AND rt.comment IS NOT NULL AND rt.comment <> ''
+        ORDER BY rt.created_at DESC LIMIT 10`,
+      [r.seller_id],
+    );
+    return { ...r, reputation: rep, reviews };
   }
 
   /**
