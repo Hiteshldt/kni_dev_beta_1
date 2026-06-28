@@ -54,8 +54,21 @@ async function main() {
     );
   }
 
+  // Bootstrap one category per catalog item so the hierarchy exists from day one
+  // (admin can then add more types under each, e.g. varieties of onion). Idempotent.
+  await client.query(
+    `INSERT INTO categories (slug, name, image_url)
+     SELECT slug, names, image_url FROM produce_catalog
+     ON CONFLICT (slug) DO NOTHING`,
+  );
+  await client.query(
+    `UPDATE produce_catalog pc SET category_id = c.id
+       FROM categories c WHERE c.slug = pc.slug AND pc.category_id IS NULL`,
+  );
+
   const { rows } = await client.query('SELECT count(*)::int AS n FROM produce_catalog');
-  console.log(`Seeded produce_catalog: ${rows[0].n} items.`);
+  const cats = await client.query('SELECT count(*)::int AS n FROM categories');
+  console.log(`Seeded produce_catalog: ${rows[0].n} items, ${cats.rows[0].n} categories.`);
 
   // Bootstrap an internal admin account. Admins log in with email + password
   // (the apps use phone OTP). Override via ADMIN_EMAIL / ADMIN_PASSWORD env.

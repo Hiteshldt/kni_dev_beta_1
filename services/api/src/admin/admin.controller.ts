@@ -42,6 +42,37 @@ export class AdminController {
     return this.admin.setBlocked(id, body?.blocked !== false);
   }
 
+  // --- Catalog management ---
+  @Get('categories')
+  categories() {
+    return this.admin.categories();
+  }
+
+  @Post('categories')
+  createCategory(@Body() body: any) {
+    return this.admin.createCategory(body);
+  }
+
+  @Post('categories/:id')
+  updateCategory(@Param('id', ParseUUIDPipe) id: string, @Body() body: any) {
+    return this.admin.updateCategory(id, body);
+  }
+
+  @Get('catalog')
+  catalogItems() {
+    return this.admin.catalogItems();
+  }
+
+  @Post('catalog')
+  createCatalogItem(@Body() body: any) {
+    return this.admin.createCatalogItem(body);
+  }
+
+  @Post('catalog/:id')
+  updateCatalogItem(@Param('id', ParseUUIDPipe) id: string, @Body() body: any) {
+    return this.admin.updateCatalogItem(id, body);
+  }
+
   @Get('orders')
   recentOrders() {
     return this.admin.recentOrders();

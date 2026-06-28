@@ -88,6 +88,87 @@ export class AdminService {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Catalog management (categories + items). Admin builds the hierarchy sellers
+  // list against. Images are uploaded via /uploads; we store the returned path.
+  // ---------------------------------------------------------------------------
+  private slugify(s: string): string {
+    return (
+      String(s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') ||
+      'x-' + Date.now()
+    );
+  }
+
+  async categories() {
+    return this.db.query(
+      `SELECT c.*, (SELECT count(*)::int FROM produce_catalog p WHERE p.category_id = c.id AND p.active) AS item_count
+         FROM categories c ORDER BY c.sort_order, c.created_at`,
+    );
+  }
+
+  async createCategory(b: { slug?: string; name: any; imageUrl?: string; sortOrder?: number }) {
+    if (!b?.name?.en) throw new BadRequestException('Category needs at least an English name');
+    return this.db.one(
+      `INSERT INTO categories (slug, name, image_url, sort_order)
+       VALUES ($1,$2,$3,$4) RETURNING *`,
+      [b.slug || this.slugify(b.name.en), JSON.stringify(b.name), b.imageUrl ?? null, b.sortOrder ?? 0],
+    );
+  }
+
+  async updateCategory(id: string, b: { name?: any; imageUrl?: string; sortOrder?: number; active?: boolean }) {
+    return this.db.one(
+      `UPDATE categories SET
+         name = COALESCE($2, name),
+         image_url = COALESCE($3, image_url),
+         sort_order = COALESCE($4, sort_order),
+         active = COALESCE($5, active)
+       WHERE id = $1 RETURNING *`,
+      [id, b.name ? JSON.stringify(b.name) : null, b.imageUrl ?? null, b.sortOrder ?? null, b.active ?? null],
+    );
+  }
+
+  async catalogItems() {
+    return this.db.query(
+      `SELECT p.id, p.slug, p.names, p.category, p.category_id, p.default_unit, p.default_moq,
+              p.perishability_days, p.image_url, p.active,
+              c.name AS category_name
+         FROM produce_catalog p
+         LEFT JOIN categories c ON c.id = p.category_id
+        ORDER BY p.active DESC, p.slug`,
+    );
+  }
+
+  async createCatalogItem(b: {
+    slug?: string; name: any; categoryId?: string; category?: string;
+    unit?: string; moq?: number; perishabilityDays?: number; imageUrl?: string;
+  }) {
+    if (!b?.name?.en) throw new BadRequestException('Item needs at least an English name');
+    return this.db.one(
+      `INSERT INTO produce_catalog (slug, names, category, category_id, default_unit, default_moq, perishability_days, image_url)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+      [
+        b.slug || this.slugify(b.name.en), JSON.stringify(b.name), b.category ?? 'general',
+        b.categoryId ?? null, b.unit ?? 'kg', b.moq ?? 10, b.perishabilityDays ?? 3, b.imageUrl ?? null,
+      ],
+    );
+  }
+
+  async updateCatalogItem(id: string, b: {
+    name?: any; categoryId?: string; unit?: string; moq?: number; imageUrl?: string; active?: boolean;
+  }) {
+    return this.db.one(
+      `UPDATE produce_catalog SET
+         names = COALESCE($2, names),
+         category_id = COALESCE($3, category_id),
+         default_unit = COALESCE($4, default_unit),
+         default_moq = COALESCE($5, default_moq),
+         image_url = COALESCE($6, image_url),
+         active = COALESCE($7, active)
+       WHERE id = $1 RETURNING *`,
+      [id, b.name ? JSON.stringify(b.name) : null, b.categoryId ?? null, b.unit ?? null, b.moq ?? null, b.imageUrl ?? null, b.active ?? null],
+    );
+  }
+
   /** Recent orders with buyer, payment and settlement state for the console. */
   async recentOrders(limit = 50) {
     const rows = await this.db.query(
